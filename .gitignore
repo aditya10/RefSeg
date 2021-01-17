@@ -1,1 +1,4 @@
-./data/coco
+data/Gref/*
+data/coco
+*.pyc
+ckpts/

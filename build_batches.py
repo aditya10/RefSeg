@@ -1,11 +1,13 @@
 import sys
 sys.path.append('./external/coco/PythonAPI')
+sys.path.append('./external/refer')
 import os
 import argparse
 import numpy as np
 import json
 import skimage
 import skimage.io
+import h5py
 
 from util import im_processing, text_processing
 from util.io import load_referit_gt_mask as load_gt_mask
@@ -20,11 +22,9 @@ def build_referit_batches(setname, T, input_H, input_W):
     query_file = './data/referit_query_' + setname + '.json'
     vocab_file = './data/vocabulary_referit.txt'
 
-    # saving directory
-    data_folder = './referit/' + setname + '_batch/'
+    # saving hdf5 file
     data_prefix = 'referit_' + setname
-    if not os.path.isdir(data_folder):
-        os.makedirs(data_folder)
+    f = h5py.File('./data/referit/'+data_prefix+'.hdf5','w')
 
     # load annotations
     query_dict = json.load(open(query_file))
@@ -55,11 +55,12 @@ def build_referit_batches(setname, T, input_H, input_W):
 
         text = text_processing.preprocess_sentence(sent, vocab_dict, T)
 
-        np.savez(file = data_folder + data_prefix + '_' + str(n_batch) + '.npz',
-            text_batch = text,
-            im_batch = im,
-            mask_batch = (mask > 0),
-            sent_batch = [sent])
+        grp = f.create_group(data_prefix+'_'+str(i)) #creates a group for the batch
+        grp.create_dataset("text_batch", data=text)
+        grp.create_dataset("im_batch", data=im)
+        grp.create_dataset("sent_batch", data=sent.encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
+        grp.create_dataset("mask_batch", data=(mask > 0))
+    f.close()
 
 
 def build_coco_batches(dataset, setname, T, input_H, input_W):
@@ -67,10 +68,8 @@ def build_coco_batches(dataset, setname, T, input_H, input_W):
     im_type = 'train2014'
     vocab_file = './data/vocabulary_Gref.txt'
 
-    data_folder = './' + dataset + '/' + setname + '_batch/'
     data_prefix = dataset + '_' + setname
-    if not os.path.isdir(data_folder):
-        os.makedirs(data_folder)
+    f = h5py.File('./data/'+dataset+'/'+data_prefix+'.hdf5','w')
 
     if dataset == 'Gref':
         refer = REFER('./external/refer/data', dataset = 'refcocog', splitBy = 'google')
@@ -102,13 +101,37 @@ def build_coco_batches(dataset, setname, T, input_H, input_W):
             sent = sentence['sent']
             text = text_processing.preprocess_sentence(sent, vocab_dict, T)
 
-            np.savez(file = data_folder + data_prefix + '_' + str(n_batch) + '.npz',
-                text_batch = text,
-                im_batch = im,
-                mask_batch = (mask > 0),
-                sent_batch = [sent])
-            n_batch += 1
+            grp = f.create_group(data_prefix+'_'+str(i)) #creates a group for the batch
+            grp.create_dataset("text_batch", data=text)
+            grp.create_dataset("im_batch", data=im)
+            grp.create_dataset("sent_batch", data=sent.encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
+            grp.create_dataset("mask_batch", data=(mask > 0))
 
+            n_batch += 1
+     f.close()
+
+# Legacy code to convert npz batches into hdf5
+def build_hdf5_file(dataset, setname):
+    data_folder = './' + dataset + '/' + setname + '_batch/'
+    data_prefix = dataset + '_' + setname
+    f = h5py.File('./data/' + dataset+'/'+data_prefix+'.hdf5','w')
+    
+    files = next(os.walk(data_folder))[2]
+    filecount = len(files)
+    print(str(filecount)+" files found. Starting to load h5 file...")
+    for i in range(filecount):    
+        save_file = os.path.join(data_folder, data_prefix+'_'+str(i)+'.npz')
+        npz_filemap = np.load(save_file)
+        batch = dict(npz_filemap)
+
+        grp = f.create_group(data_prefix+'_'+str(i)) #creates a group for the batch
+        grp.create_dataset("text_batch", data=batch["text_batch"])
+        grp.create_dataset("im_batch", data=batch["im_batch"])
+        grp.create_dataset("sent_batch", data=batch["sent_batch"][0].encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
+        grp.create_dataset("mask_batch", data=batch["mask_batch"])
+        if (i % 100 == 0):
+            print(i)
+    f.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

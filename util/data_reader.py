@@ -4,10 +4,16 @@ import numpy as np
 import os
 import threading
 import Queue as queue
+import h5py
 
 def run_prefetch(prefetch_queue, folder_name, prefix, num_batch, shuffle):
     n_batch_prefetch = 0
     fetch_order = np.arange(num_batch)
+
+    # Reading from a h5 file
+    print("Reading hdf5 file...")
+    f = h5py.File(folder_name+prefix+'.hdf5','r')
+
     while True:
         # Shuffle the batch order for every epoch
         if n_batch_prefetch == 0 and shuffle:
@@ -15,10 +21,12 @@ def run_prefetch(prefetch_queue, folder_name, prefix, num_batch, shuffle):
 
         # Load batch from file
         batch_id = fetch_order[n_batch_prefetch]
-        save_file = os.path.join(folder_name, prefix+'_'+str(batch_id)+'.npz')
-        npz_filemap = np.load(save_file)
-        batch = dict(npz_filemap)
-        npz_filemap.close()
+        batch = {
+            "text_batch": np.array(f[prefix+'_'+str(batch_id)]["text_batch"]),
+            "im_batch": np.array(f[prefix+'_'+str(batch_id)]["im_batch"]),
+            "sent_batch": np.array(f[prefix+'_'+str(batch_id)]["sent_batch"]),
+            "mask_batch": np.array(f[prefix+'_'+str(batch_id)]["mask_batch"]),
+        }
 
         # add loaded batch to fetchqing queue
         prefetch_queue.put(batch, block=True)
@@ -36,11 +44,10 @@ class DataReader:
         self.n_batch = 0
         self.n_epoch = 0
 
-        # Search the folder to see the number of num_batch
-        filelist = os.listdir(folder_name)
-        num_batch = 0
-        while (prefix + '_' + str(num_batch) + '.npz') in filelist:
-            num_batch += 1
+        # Read h5 file to get number of batches to process
+        f = h5py.File(folder_name+prefix+'.hdf5','r')
+        num_batch = len(f.keys())
+
         if num_batch > 0:
             print('found %d batches under %s with prefix "%s"' % (num_batch, folder_name, prefix))
         else:

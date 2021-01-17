@@ -1,7 +1,12 @@
 from __future__ import division
 
+# Required to run the script on Slurm
 import sys
 import os
+os.chdir('/ubc/cs/research/shield/projects/aditya10/RefSeg/')
+sys.path.append('/ubc/cs/research/shield/projects/aditya10/python-packages/')
+sys.path.append('/ubc/cs/research/shield/projects/aditya10/RefSeg/external/tensorflow-deeplab-resnet/')
+
 import argparse
 import tensorflow as tf
 import skimage
@@ -19,7 +24,7 @@ from util import im_processing, eval_tools, MovingAverage
 def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
           conv5, model_name, stop_iter, pre_emb=False):
     iters_per_log = 100
-    data_folder = './' + dataset + '/' + setname + '_batch/'
+    data_folder = './data/' + dataset + '/'
     data_prefix = dataset + '_' + setname
     snapshot_file = os.path.join(tfmodel_folder, dataset + '_iter_%d.tfmodel')
     if not os.path.isdir(tfmodel_folder):
@@ -229,13 +234,18 @@ def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name
             pred_raw_dcrf = np.argmax(Q, axis=0).reshape((H, W)).astype(np.float32)
             predicts_dcrf = im_processing.resize_and_crop(pred_raw_dcrf, mask.shape[0], mask.shape[1])
 
-        if visualize:
-            sent = batch['sent_batch'][0]
-            visualize_seg(im, mask, predicts, sent)
-            if dcrf:
-                visualize_seg(im, mask, predicts_dcrf, sent)
 
         I, U = eval_tools.compute_mask_IU(predicts, mask)
+        
+        # visualize if the IoU is smaller than this, i.e. the images where the segmentation results are worse
+        IoU_VisThresh = 0.4
+        this_IoU = float(I)/U
+        if visualize & (this_IoU<IoU_VisThresh):
+            sent = batch['sent_batch'][()]
+            visualize_seg(im, mask, predicts, sent, this_IoU)
+            if dcrf:
+                visualize_seg(im, mask, predicts_dcrf, sent, this_IoU)
+
         IU_result.append({'batch_no': n_iter, 'I': I, 'U': U})
         mean_IoU += float(I) / U
         cum_I += I
@@ -274,10 +284,12 @@ def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name
         print(result_str)
 
 
-def visualize_seg(im, mask, predicts, sent):
-    # print("visualizing")
-    vis_dir = "./visualize/lgcr_best_c5map/unc/testA"
-    sent_dir = os.path.join(vis_dir, sent)
+def visualize_seg(im, mask, predicts, sent, IoU):
+    # Saves visualizations as image files
+    vis_dir = "./visualize/Gref/test"
+    IoU_str = str("%.3f" % round(IoU,3))[2:]
+    IoU_sent = IoU_str[0]+"/"+IoU_str+ " - "+sent
+    sent_dir = os.path.join(vis_dir, IoU_sent)
     if not os.path.exists(sent_dir):
         os.makedirs(sent_dir)
 
@@ -285,8 +297,15 @@ def visualize_seg(im, mask, predicts, sent):
     import warnings
     warnings.filterwarnings('ignore')
 
-    sio.imsave(os.path.join(sent_dir, "im.png"), im)
+    # write IoU score to the text file
+    f = open(os.path.join(sent_dir, 'result.txt'), 'w')
+    f.write(str(IoU))
+    f.close()
 
+    # save original image
+    sio.imsave(os.path.join(sent_dir, "im.png"), im)
+    
+    # save ground truth mask
     im_gt = np.zeros_like(im)
     im_gt[:, :, 2] = 170
     im_gt[:, :, 0] += mask.astype('uint8') * 170
@@ -294,15 +313,15 @@ def visualize_seg(im, mask, predicts, sent):
     im_gt[:, :, 2] += mask.astype('int16') * (-170)
     im_gt = im_gt.astype('uint8')
     sio.imsave(os.path.join(sent_dir, "gt.png"), im_gt)
-
-    im_seg = im / 2
-    im_seg[:, :, 0] += predicts.astype('uint8') * 100
-    im_seg = im_seg.astype('uint8')
-    sio.imsave(os.path.join(sent_dir, "pred.png"), im_seg)
-
-    # plt.imshow(im_seg.astype('uint8'))
-    # plt.title(sent)
-    # plt.show()
+    
+    # save predicted mask
+    im_pred = np.zeros_like(im)
+    im_pred[:, :, 2] = 170
+    im_pred[:, :, 0] += predicts.astype('uint8') * 170
+    im_pred = im_pred.astype('int16')
+    im_pred[:, :, 2] += predicts.astype('int16') * (-170)
+    im_pred = im_pred.astype('uint8')
+    sio.imsave(os.path.join(sent_dir, "mask.png"), im_pred)
 
 
 if __name__ == "__main__":
