@@ -1,4 +1,6 @@
 data/Gref/*
 data/coco
 *.pyc
-ckpts/
+ckpts/*
+external/refer/*
+external/coco/*
