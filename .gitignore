@@ -1,6 +1,10 @@
 data/Gref/*
+data/unc/*
 data/coco
 *.pyc
 ckpts/*
 external/refer/*
 external/coco/*
+data/Gref_emb.npy
+data/referit_emb.npy
+data/weights/*

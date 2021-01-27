@@ -55,7 +55,7 @@ def build_referit_batches(setname, T, input_H, input_W):
 
         text = text_processing.preprocess_sentence(sent, vocab_dict, T)
 
-        grp = f.create_group(data_prefix+'_'+str(i)) #creates a group for the batch
+        grp = f.create_group(data_prefix+'_'+str(n_batch + 1)) #creates a group for the batch
         grp.create_dataset("text_batch", data=text)
         grp.create_dataset("im_batch", data=im)
         grp.create_dataset("sent_batch", data=sent.encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
@@ -101,14 +101,14 @@ def build_coco_batches(dataset, setname, T, input_H, input_W):
             sent = sentence['sent']
             text = text_processing.preprocess_sentence(sent, vocab_dict, T)
 
-            grp = f.create_group(data_prefix+'_'+str(i)) #creates a group for the batch
+            grp = f.create_group(data_prefix+'_'+str(n_batch + 1)) #creates a group for the batch
             grp.create_dataset("text_batch", data=text)
             grp.create_dataset("im_batch", data=im)
             grp.create_dataset("sent_batch", data=sent.encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
             grp.create_dataset("mask_batch", data=(mask > 0))
 
             n_batch += 1
-     f.close()
+    f.close()
 
 # Legacy code to convert npz batches into hdf5
 def build_hdf5_file(dataset, setname):

@@ -43,8 +43,8 @@ def iou_loss(scores, labels):
     scores = tf.sigmoid(scores)
     inter = tf.reduce_sum(tf.multiply(scores, labels), [1, 2, 3])
     union = tf.add(tf.reduce_sum(scores, [1, 2, 3]), tf.reduce_sum(labels, [1, 2, 3]))
-    union = tf.sub(union, inter)
-    iou_loss = tf.reduce_mean(tf.sub(1., tf.div(inter, union)))
+    union = tf.subtract(union, inter)
+    iou_loss = tf.reduce_mean(tf.subtract(1., tf.div(inter, union)))
 
     return iou_loss
 

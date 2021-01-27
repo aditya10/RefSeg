@@ -140,7 +140,7 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
 
 
 def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name, pre_emb=False):
-    data_folder = './' + dataset + '/' + setname + '_batch/'
+    data_folder = './data/' + dataset + '/'
     data_prefix = dataset + '_' + setname
     if visualize:
         save_dir = './' + dataset + '/visualization/' + str(iter) + '/'
