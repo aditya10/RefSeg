@@ -452,11 +452,9 @@ class LSTM_model(object):
         self.cls_loss_c4 = loss.weighed_logistic_loss(self.up_c4, self.target_fine, 1, 1)
         self.cls_loss_c3 = loss.weighed_logistic_loss(self.up_c3, self.target_fine, 1, 1)
         self.cls_loss = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
-        self.cls_loss_all = 0.7 * self.cls_loss + 0.1 * self.cls_loss_c5 \
-                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3
-        # self.iou_loss = loss.iou_loss(self.up, self.target_fine)
-        # self.cls_loss_all = 0.4 * self.cls_loss + 0.1 * self.cls_loss_c5 \
-        #                     + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.3 * self.iou_loss
+        self.iou_loss = loss.iou_loss(self.up, self.target_fine)
+        self.cls_loss_all = 0.4 * self.cls_loss + 0.1 * self.cls_loss_c5 \
+                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.3 * self.iou_loss
         self.reg_loss = loss.l2_regularization_loss(reg_var_list, self.weight_decay)
         self.cost = self.cls_loss_all + self.reg_loss
 

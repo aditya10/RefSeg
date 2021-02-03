@@ -8,6 +8,7 @@ import json
 import skimage
 import skimage.io
 import h5py
+import gc
 
 from util import im_processing, text_processing
 from util.io import load_referit_gt_mask as load_gt_mask
@@ -24,7 +25,7 @@ def build_referit_batches(setname, T, input_H, input_W):
 
     # saving hdf5 file
     data_prefix = 'referit_' + setname
-    f = h5py.File('./data/referit/'+data_prefix+'.hdf5','w')
+    f = h5py.File('/ubc/cs/research/shield/datasets/refer/data/referit/'+data_prefix+'.hdf5','w')
 
     # load annotations
     query_dict = json.load(open(query_file))
@@ -42,7 +43,13 @@ def build_referit_batches(setname, T, input_H, input_W):
     # save batches to disk
     num_batch = len(samples)
     for n_batch in range(num_batch):
-        print('saving batch %d / %d' % (n_batch + 1, num_batch))
+        if (n_batch % 1000 == 0):
+            f.flush()
+            f.close()
+            f = None
+            gc.collect()
+            f = h5py.File('/ubc/cs/research/shield/datasets/refer/data/referit/'+data_prefix+'.hdf5','a')
+            print('saving batch %d / %d' % (n_batch + 1, num_batch))
         im_name, mask_name, sent = samples[n_batch]
         im = skimage.io.imread(im_dir + im_name)
         mask = load_gt_mask(mask_dir + mask_name).astype(np.float32)
@@ -55,7 +62,7 @@ def build_referit_batches(setname, T, input_H, input_W):
 
         text = text_processing.preprocess_sentence(sent, vocab_dict, T)
 
-        grp = f.create_group(data_prefix+'_'+str(n_batch + 1)) #creates a group for the batch
+        grp = f.create_group(data_prefix+'_'+str(n_batch)) #creates a group for the batch
         grp.create_dataset("text_batch", data=text)
         grp.create_dataset("im_batch", data=im)
         grp.create_dataset("sent_batch", data=sent.encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
@@ -69,7 +76,7 @@ def build_coco_batches(dataset, setname, T, input_H, input_W):
     vocab_file = './data/vocabulary_Gref.txt'
 
     data_prefix = dataset + '_' + setname
-    f = h5py.File('./data/'+dataset+'/'+data_prefix+'.hdf5','w')
+    f = h5py.File('/ubc/cs/research/shield/datasets/refer/data/'+dataset+'/'+data_prefix+'.hdf5','w')
 
     if dataset == 'Gref':
         refer = REFER('./external/refer/data', dataset = 'refcocog', splitBy = 'google')
@@ -97,17 +104,25 @@ def build_coco_batches(dataset, setname, T, input_H, input_W):
             im = np.tile(im[:, :, np.newaxis], (1, 1, 3))
 
         for sentence in ref['sentences']:
-            print('saving batch %d' % (n_batch + 1))
+            if (n_batch % 1000 == 0):
+                f.flush()
+                f.close()
+                f = None
+                gc.collect()
+                f = h5py.File('/ubc/cs/research/shield/datasets/refer/data/'+dataset+'/'+data_prefix+'.hdf5','a')
+                print('saving batch %d' % (n_batch + 1))
+                
             sent = sentence['sent']
             text = text_processing.preprocess_sentence(sent, vocab_dict, T)
 
-            grp = f.create_group(data_prefix+'_'+str(n_batch + 1)) #creates a group for the batch
+            grp = f.create_group(data_prefix+'_'+str(n_batch)) #creates a group for the batch
             grp.create_dataset("text_batch", data=text)
             grp.create_dataset("im_batch", data=im)
             grp.create_dataset("sent_batch", data=sent.encode('utf-8'), dtype=h5py.special_dtype(vlen=unicode))
             grp.create_dataset("mask_batch", data=(mask > 0))
 
             n_batch += 1
+    print('Saved file: '+data_prefix+'.hdf5 with n_batch = '+str(n_batch-1))
     f.close()
 
 # Legacy code to convert npz batches into hdf5

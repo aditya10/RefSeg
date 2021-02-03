@@ -15,6 +15,7 @@ import time
 # import matplotlib.pyplot as plt
 from get_model import get_segmentation_model
 from pydensecrf import densecrf
+import h5py
 
 from util import data_reader
 from util.processing_tools import *
@@ -22,9 +23,11 @@ from util import im_processing, eval_tools, MovingAverage
 
 
 def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
-          conv5, model_name, stop_iter, pre_emb=False):
+          conv5, model_name, stop_iter, pre_emb=False, visualize=False):
     iters_per_log = 100
-    data_folder = './data/' + dataset + '/'
+    vcount_thresh = 5000
+    vcount = 0
+    data_folder = '/ubc/cs/research/shield/datasets/refer/data/' + dataset + '/'
     data_prefix = dataset + '_' + setname
     snapshot_file = os.path.join(tfmodel_folder, dataset + '_iter_%d.tfmodel')
     if not os.path.isdir(tfmodel_folder):
@@ -91,11 +94,12 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
                     valid_idx_batch[n_batch, :] = idx
                     break
 
-        _, cls_loss_val, lr_val, scores_val, label_val = sess.run([model.train_step,
+        _, cls_loss_val, lr_val, scores_val, label_val, up_val = sess.run([model.train_step,
                                                                    model.cls_loss,
                                                                    model.learning_rate,
                                                                    model.pred,
-                                                                   model.target],
+                                                                   model.target,
+                                                                   model.up],
                                                                   feed_dict={
                                                                       model.words: text_batch,
                                                                       # np.expand_dims(text, axis=0),
@@ -106,6 +110,21 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
                                                                       model.valid_idx: valid_idx_batch
                                                                   })
         cls_loss_avg = decay * cls_loss_avg + (1 - decay) * cls_loss_val
+
+        # Save the prediction and label
+        if n_iter == (stop_iter-1) and visualize and vcount < vcount_thresh:
+            print("in here")
+            vcount = vcount + 1
+            f = h5py.File(tfmodel_folder+'/preds.hdf5','a')
+            print('preds_'+str(vcount))
+            grp = f.create_group('preds_'+str(vcount))
+            grp.create_dataset("pred", data=scores_val)
+            grp.create_dataset("target", data=label_val)
+            grp.create_dataset("pred_fine", data=up_val)
+            grp.create_dataset("target_fine", data=mask_batch)
+            grp.create_dataset("image", data=image_batch)
+            f.close()
+            
 
         # Accuracy
         accuracy_all, accuracy_pos, accuracy_neg = compute_accuracy(scores_val, label_val)
@@ -118,6 +137,7 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
         elapsed = cur_time - last_time
         last_time = cur_time
 
+        # Print log
         if n_iter % iters_per_log == 0:
             print('iter = %d, loss (cur) = %f, loss (avg) = %f, lr = %f'
                   % (n_iter, cls_loss_val, cls_loss_avg, lr_val))
@@ -127,6 +147,10 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
                   % (n_iter, avg_accuracy_all, avg_accuracy_pos, avg_accuracy_neg))
             time_avg.add(elapsed)
             print('iter = %d, cur time = %.5f, avg time = %.5f, model_name: %s' % (n_iter, elapsed, time_avg.get_avg(), model_name))
+            with open(tfmodel_folder+"/avgloss.txt", "a") as myfile:
+                myfile.write("%f\n"%(cls_loss_avg))
+            with open(tfmodel_folder+"/avgacc.txt", "a") as myfile:
+                myfile.write("%f\n"%(avg_accuracy_all))
 
         # Save snapshot
         if (n_iter + 1) % snapshot == 0 or (n_iter + 1) >= max_iter:
@@ -140,7 +164,7 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
 
 
 def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name, pre_emb=False):
-    data_folder = './data/' + dataset + '/'
+    data_folder = '/ubc/cs/research/shield/datasets/refer/data/' + dataset + '/'
     data_prefix = dataset + '_' + setname
     if visualize:
         save_dir = './' + dataset + '/visualization/' + str(iter) + '/'
@@ -183,6 +207,7 @@ def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name
     reader = data_reader.DataReader(data_folder, data_prefix, shuffle=False)
 
     NN = reader.num_batch
+    vcount = 0
     for n_iter in range(reader.num_batch):
 
         if n_iter % (NN // 50) == 0:
@@ -216,9 +241,23 @@ def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name
 
         # scores_val = np.squeeze(scores_val)
         # pred_raw = (scores_val >= score_thresh).astype(np.float32)
-        up_val = np.squeeze(up_val)
-        pred_raw = (up_val >= score_thresh).astype(np.float32)
+        up_val_squeezed = np.squeeze(up_val)
+        pred_raw = (up_val_squeezed >= score_thresh).astype(np.float32)
         predicts = im_processing.resize_and_crop(pred_raw, mask.shape[0], mask.shape[1])
+        
+        # Use this code if there is a need to save the preds into an h5 file
+        # if (vcount < 4000):
+        #     vcount = vcount + 1
+        #     f = h5py.File(tfmodel_folder+'/preds.hdf5','a')
+        #     grp = f.create_group('preds_'+str(n_iter+1))
+        #     grp.create_dataset("target_fine", data=mask)
+        #     grp.create_dataset("image", data=im)
+
+        #     grp.create_dataset("pred", data=scores_val)
+        #     grp.create_dataset("pred_up", data=up_val)
+        #     grp.create_dataset("pred_final", data=predicts)
+        #     f.close()
+
         if dcrf:
             # Dense CRF post-processing
             sigm_val = np.squeeze(sigm_val)
@@ -358,7 +397,8 @@ if __name__ == "__main__":
               conv5=args.conv5,
               model_name=args.n,
               stop_iter=args.st,
-              pre_emb=args.emb)
+              pre_emb=args.emb,
+              visualize=args.v)
     elif args.m == 'test':
         test(iter=args.i,
              dataset=args.d,
