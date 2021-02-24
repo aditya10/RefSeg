@@ -246,17 +246,14 @@ def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name
         predicts = im_processing.resize_and_crop(pred_raw, mask.shape[0], mask.shape[1])
         
         # Use this code if there is a need to save the preds into an h5 file
-        # if (vcount < 4000):
-        #     vcount = vcount + 1
-        #     f = h5py.File(tfmodel_folder+'/preds.hdf5','a')
-        #     grp = f.create_group('preds_'+str(n_iter+1))
-        #     grp.create_dataset("target_fine", data=mask)
-        #     grp.create_dataset("image", data=im)
-
-        #     grp.create_dataset("pred", data=scores_val)
-        #     grp.create_dataset("pred_up", data=up_val)
-        #     grp.create_dataset("pred_final", data=predicts)
-        #     f.close()
+        # f = h5py.File(tfmodel_folder+'/'+setname+'_preds.hdf5','a')
+        # grp = f.create_group('preds_'+str(n_iter+1))
+        # grp.create_dataset("target_fine", data=mask)
+        # grp.create_dataset("image", data=im)
+        # grp.create_dataset("pred", data=scores_val)
+        # #grp.create_dataset("pred_up", data=up_val)
+        # grp.create_dataset("pred_final", data=predicts)
+        # f.close()
 
         if dcrf:
             # Dense CRF post-processing
@@ -368,7 +365,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', type=str, default='0')
     parser.add_argument('-i', type=int, default=800000)
     parser.add_argument('-s', type=int, default=100000)
-    parser.add_argument('-st', type=int, default=700000)  # stop training when get st iters
+    parser.add_argument('-st', type=int, default=800000)  # stop training when get st iters
     parser.add_argument('-m', type=str)  # 'train' 'test'
     parser.add_argument('-d', type=str, default='referit')  # 'Gref' 'unc' 'unc+' 'referit'
     parser.add_argument('-t', type=str)  # 'train' 'trainval' 'val' 'test' 'testA' 'testB'

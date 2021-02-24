@@ -162,33 +162,57 @@ class LSTM_model(object):
 
         # Generate spatial grid
         spatial = tf.convert_to_tensor(generate_spatial_batch(self.batch_size, self.vf_h, self.vf_w))
-
+        spatial = tf.Print(spatial,[spatial])
         words_parse = self.build_lang_parser(words_feat)
-
-        for ns in range(self.num_graphloop):
-            fusion_c5 = self.build_lang2vis(visual_feat_c5, words_feat, lang_feat,
-                                            words_parse, spatial, level="c5")
-            fusion_c4 = self.build_lang2vis(visual_feat_c4, words_feat, lang_feat,
-                                            words_parse, spatial, level="c4")
-            fusion_c3 = self.build_lang2vis(visual_feat_c3, words_feat, lang_feat,
-                                            words_parse, spatial, level="c3")
-
-            # For multi-level losses
-            score_c5 = self._conv("score_c5", fusion_c5, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-            self.up_c5 = tf.image.resize_bilinear(score_c5, [self.H, self.W])
-            score_c4 = self._conv("score_c4", fusion_c4, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-            self.up_c4 = tf.image.resize_bilinear(score_c4, [self.H, self.W])
-            score_c3 = self._conv("score_c3", fusion_c3, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-            self.up_c3 = tf.image.resize_bilinear(score_c3, [self.H, self.W])
-
-            valid_lang = self.nec_lang(words_parse, words_feat)
-            fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
-                                                                fusion_c4, fusion_c5, valid_lang)
-            score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-            self.pred = score
+        
+        c = lambda (i, pred,visual_feat_c5, 
+                        visual_feat_c4, 
+                        visual_feat_c3, 
+                        words_feat, 
+                        lang_feat, 
+                        words_parse, 
+                        spatial): i < self.num_graphloop
+        
+        self.pred = tf.while_loop(c, self.build_graph_preds, (0, self.pred, visual_feat_c5, visual_feat_c4, visual_feat_c3, 
+                        words_feat, 
+                        lang_feat, 
+                        words_parse, 
+                        spatial))
 
         self.up = tf.image.resize_bilinear(self.pred, [self.H, self.W])
         self.sigm = tf.sigmoid(self.up)
+
+    def build_graph_preds(self, 
+                        i, 
+                        pred,
+                        visual_feat_c5, 
+                        visual_feat_c4, 
+                        visual_feat_c3, 
+                        words_feat, 
+                        lang_feat, 
+                        words_parse, 
+                        spatial):
+        fusion_c5 = self.build_lang2vis(visual_feat_c5, words_feat, lang_feat,
+                                            words_parse, spatial, level="c5")
+        fusion_c4 = self.build_lang2vis(visual_feat_c4, words_feat, lang_feat,
+                                        words_parse, spatial, level="c4")
+        fusion_c3 = self.build_lang2vis(visual_feat_c3, words_feat, lang_feat,
+                                        words_parse, spatial, level="c3")
+
+        # For multi-level losses
+        score_c5 = self._conv("score_c5", fusion_c5, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.up_c5 = tf.image.resize_bilinear(score_c5, [self.H, self.W])
+        score_c4 = self._conv("score_c4", fusion_c4, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.up_c4 = tf.image.resize_bilinear(score_c4, [self.H, self.W])
+        score_c3 = self._conv("score_c3", fusion_c3, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.up_c3 = tf.image.resize_bilinear(score_c3, [self.H, self.W])
+
+        valid_lang = self.nec_lang(words_parse, words_feat)
+        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
+                                                            fusion_c4, fusion_c5, valid_lang)
+        score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.pred = score
+        return self.pred
 
     def valid_lang(self, words_parse, words_feat):
         # words_parse: [B, 1, T, 4]

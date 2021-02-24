@@ -1,12 +1,18 @@
 import matplotlib.pyplot as plt
-import sys
-import os
+import pandas as pd
 
-x = []
-with open('../ckpts/unc/2/avgloss.txt') as f:
-    x = f.readlines()
+y = []
+with open('../ckpts/unc/1/avgloss.txt') as f:
+    lines = f.readlines()
+    y = [float(line.replace("\n", "")) for line in lines]
 
-plt.ylabel('Avg Loss')
+x = range(1, len(y)*100, 100)
+
+df = pd.Dataframe([x,y])
+
+print(df.head())
+
+plt.ylabel('Avg Acc')
 plt.xlabel('Iteration')
-plt.plot(x, range(0,len(x)))
-plt.savefig('./avgloss.png')
+plt.plot(x, y)
+plt.savefig('./avgacc.png')

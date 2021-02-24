@@ -422,10 +422,11 @@ class LSTM_model(object):
         if self.pred is not None:
             pred_arr = tf.reshape(self.pred, [self.batch_size, self.vf_h * self.vf_w, 1])
             pred_mat = tf.keras.backend.repeat_elements(pred_arr, 1600, axis = 2)
-            new_adj_mat = tf.stack([adj_mat, pred_mat], axis=3)
+            pred_mat_trans = tf.transpose(pred_mat, perm=[0,2,1])
+            new_adj_mat = tf.stack([adj_mat, pred_mat, pred_mat_trans], axis=3)
             #pred_adj_mat = self._conv("pred_adj", new_adj_mat, 1, 2, 1, [1, 1, 1, 1])
             with tf.variable_scope("pred_adj", reuse=tf.AUTO_REUSE):
-                w = tf.get_variable('DW', [1, 1, 2, 1], initializer=tf.contrib.layers.xavier_initializer_conv2d())
+                w = tf.get_variable('DW', [1, 1, 3, 1], initializer=tf.contrib.layers.xavier_initializer_conv2d())
                 pred_adj_mat = tf.nn.conv2d(new_adj_mat, w, strides=[1, 1, 1, 1], padding='SAME')
                 adj_mat = tf.reshape(pred_adj_mat, [1, self.vf_h * self.vf_w, self.vf_h * self.vf_w])
 
