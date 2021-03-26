@@ -8,3 +8,4 @@ external/coco/*
 data/Gref_emb.npy
 data/referit_emb.npy
 data/weights/*
+visualize

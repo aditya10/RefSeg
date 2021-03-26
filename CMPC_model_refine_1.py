@@ -37,7 +37,6 @@ class LSTM_model(object):
                  conv5=False,
                  glove_dim=300,
                  emb_name='Gref'):
-        tf.keras.backend.clear_session()
         self.batch_size = batch_size
         self.num_steps = num_steps
         self.vf_h = vf_h
@@ -169,6 +168,11 @@ class LSTM_model(object):
         fusion_c3 = self.build_lang2vis(visual_feat_c3, words_feat, lang_feat,
                                         words_parse, spatial, level="c3")
 
+        valid_lang = self.nec_lang(words_parse, words_feat)
+        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
+                                                             fusion_c4, fusion_c5, valid_lang)
+        score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        
         # For multi-level losses
         score_c5 = self._conv("score_c5", fusion_c5, 3, self.mlp_dim, 1, [1, 1, 1, 1])
         self.up_c5 = tf.image.resize_bilinear(score_c5, [self.H, self.W])
@@ -177,14 +181,54 @@ class LSTM_model(object):
         score_c3 = self._conv("score_c3", fusion_c3, 3, self.mlp_dim, 1, [1, 1, 1, 1])
         self.up_c3 = tf.image.resize_bilinear(score_c3, [self.H, self.W])
 
-        valid_lang = self.nec_lang(words_parse, words_feat)
-        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
-                                                             fusion_c4, fusion_c5, valid_lang)
-        score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.pred_base = score
+        self.up_base = tf.image.resize_bilinear(self.pred_base, [self.H, self.W])
 
-        self.pred = score
+        ########################
+        # REFINEMENT
+        ########################
+        upscore = tf.image.resize_bilinear(score, [224, 224])
+
+        b1 = self._conv("b1", upscore, 3, 1, 64, [1, 1, 1, 1])
+
+        b2 = self._conv("b2", b1, 3, 64, 64, [1, 1, 1, 1])
+        b2 = tf.nn.max_pool2d(b2, 2, 2, 'SAME')
+
+        b3 = self._conv("b3", b2, 3, 64, 64, [1, 1, 1, 1])
+        b3 = tf.nn.max_pool2d(b3, 2, 2, 'SAME')
+
+        b4 = self._conv("b4", b3, 3, 64, 64, [1, 1, 1, 1])
+        b4 = tf.nn.max_pool2d(b4, 2, 2, 'SAME')
+
+        b5 = self._conv("b5", b4, 3, 64, 64, [1, 1, 1, 1])
+        b5 = tf.nn.max_pool2d(b5, 2, 2, 'SAME')
+
+        l4 = self._conv("l4", b5, 3, 64, 64, [1, 1, 1, 1])
+        l4 = tf.nn.relu(l4)
+        l4 = tf.image.resize_bilinear(l4, [28, 28])
+        l4 = b4 + l4
+
+        l3 = self._conv("l3", l4, 3, 64, 64, [1, 1, 1, 1])
+        l3 = tf.nn.relu(l3)
+        l3 = tf.image.resize_bilinear(l3, [56, 56])
+        l3 = b3 + l3
+
+        l2 = self._conv("l2", l3, 3, 64, 64, [1, 1, 1, 1])
+        l2 = tf.nn.relu(l2)
+        l2 = tf.image.resize_bilinear(l2, [112, 112])
+        l2 = b2 + l2
+
+        l1 = self._conv("l1", l2, 3, 64, 64, [1, 1, 1, 1])
+        l1 = tf.nn.relu(l1)
+        l1 = tf.image.resize_bilinear(l1, [224, 224])
+        l1 = b1 + l1
+
+        self.pred = self._conv("predrf", l1, 3, 64, 1, [1, 1, 1, 1])
+        self.pred = upscore + self.pred
+
         self.up = tf.image.resize_bilinear(self.pred, [self.H, self.W])
         self.sigm = tf.sigmoid(self.up)
+        # m_conv_up_1 = tf.nn.l2_normalize(m_conv_up_1)
 
     def valid_lang(self, words_parse, words_feat):
         # words_parse: [B, 1, T, 4]
@@ -452,9 +496,10 @@ class LSTM_model(object):
         self.cls_loss_c5 = loss.weighed_logistic_loss(self.up_c5, self.target_fine, 1, 1)
         self.cls_loss_c4 = loss.weighed_logistic_loss(self.up_c4, self.target_fine, 1, 1)
         self.cls_loss_c3 = loss.weighed_logistic_loss(self.up_c3, self.target_fine, 1, 1)
-        self.cls_loss = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
-        self.cls_loss_all = 0.7 * self.cls_loss + 0.1 * self.cls_loss_c5 \
-                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3
+        self.cls_loss = loss.weighed_logistic_loss(self.up_base, self.target_fine, 1, 1)
+        self.cls_loss_refine = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
+        self.cls_loss_all = 0.5 * self.cls_loss + 0.1 * self.cls_loss_c5 \
+                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.2 * self.cls_loss_refine
         # self.iou_loss = loss.iou_loss(self.up, self.target_fine)
         # self.cls_loss_all = 0.4 * self.cls_loss + 0.1 * self.cls_loss_c5 \
         #                     + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.3 * self.iou_loss

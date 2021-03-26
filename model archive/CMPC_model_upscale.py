@@ -37,7 +37,6 @@ class LSTM_model(object):
                  conv5=False,
                  glove_dim=300,
                  emb_name='Gref'):
-        tf.keras.backend.clear_session()
         self.batch_size = batch_size
         self.num_steps = num_steps
         self.vf_h = vf_h
@@ -183,7 +182,23 @@ class LSTM_model(object):
         score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
 
         self.pred = score
-        self.up = tf.image.resize_bilinear(self.pred, [self.H, self.W])
+
+        conv_up_1 = tf.image.resize_bilinear(pred, [64, 64])
+        conv_up_1 = self._conv("conv_up_1", conv_up_1, 3, 1, 1, [1,1,1,1])
+        conv_up_1 = tf.nn.l2_normalize(conv_up_1)
+        conv_up_1 = tf.nn.relu(conv_up_1)
+
+        conv_up_2 = tf.image.resize_bilinear(conv_up_1, [128, 128])
+        conv_up_2 = self._conv("conv_up_2", conv_up_2, 3, 1, 1, [1,1,1,1])
+        conv_up_2 = tf.nn.l2_normalize(conv_up_2)
+        conv_up_2 = tf.nn.relu(conv_up_2)
+
+        conv_up_3 = tf.image.resize_bilinear(conv_up_2, [256, 256])
+        conv_up_3 = self._conv("conv_up_2", conv_up_3, 3, 1, 1, [1,1,1,1])
+        conv_up_3 = tf.nn.l2_normalize(conv_up_3)
+        conv_up_3 = tf.nn.relu(conv_up_3)
+
+        self.up = tf.image.resize_bilinear(conv_up_3, [self.H, self.W])
         self.sigm = tf.sigmoid(self.up)
 
     def valid_lang(self, words_parse, words_feat):

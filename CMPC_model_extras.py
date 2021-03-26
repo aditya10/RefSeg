@@ -73,6 +73,7 @@ class LSTM_model(object):
         self.visual_feat_c5 = resmodel.layers['res5c_relu']
         self.visual_feat_c4 = resmodel.layers['res4b22_relu']
         self.visual_feat_c3 = resmodel.layers['res3b3_relu']
+        self.visual_feat_c2 = resmodel.layers['res2c_relu']
 
         # GloVe Embedding
         glove_np = np.load('data/{}_emb.npy'.format(self.emb_name))
@@ -156,6 +157,8 @@ class LSTM_model(object):
         visual_feat_c4 = tf.nn.l2_normalize(visual_feat_c4, 3)
         visual_feat_c3 = self._conv("c3_lateral", self.visual_feat_c3, 1, 512, self.v_emb_dim, [1, 1, 1, 1])
         visual_feat_c3 = tf.nn.l2_normalize(visual_feat_c3, 3)
+        visual_feat_c2 = self._conv("c2_lateral", self.visual_feat_c2, 1, 256, self.v_emb_dim, [1, 2, 2, 1])
+        visual_feat_c2 = tf.nn.l2_normalize(visual_feat_c2, 3)
 
         # Generate spatial grid
         spatial = tf.convert_to_tensor(generate_spatial_batch(self.batch_size, self.vf_h, self.vf_w))
@@ -168,6 +171,8 @@ class LSTM_model(object):
                                         words_parse, spatial, level="c4")
         fusion_c3 = self.build_lang2vis(visual_feat_c3, words_feat, lang_feat,
                                         words_parse, spatial, level="c3")
+        fusion_c2 = self.build_lang2vis(visual_feat_c2, words_feat, lang_feat,
+                                        words_parse, spatial, level="c2")
 
         # For multi-level losses
         score_c5 = self._conv("score_c5", fusion_c5, 3, self.mlp_dim, 1, [1, 1, 1, 1])
@@ -176,9 +181,11 @@ class LSTM_model(object):
         self.up_c4 = tf.image.resize_bilinear(score_c4, [self.H, self.W])
         score_c3 = self._conv("score_c3", fusion_c3, 3, self.mlp_dim, 1, [1, 1, 1, 1])
         self.up_c3 = tf.image.resize_bilinear(score_c3, [self.H, self.W])
+        score_c2 = self._conv("score_c2", fusion_c2, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.up_c2 = tf.image.resize_bilinear(score_c2, [self.H, self.W])
 
         valid_lang = self.nec_lang(words_parse, words_feat)
-        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
+        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c2, fusion_c3,
                                                              fusion_c4, fusion_c5, valid_lang)
         score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
 
@@ -265,7 +272,7 @@ class LSTM_model(object):
         print("Build Global Lang Vec")
         return gv_lang
 
-    def gated_exchange_module(self, feat, feat1, feat2, lang_feat, level=""):
+    def gated_exchange_module(self, feat, feat1, feat2, feat3, lang_feat, level=""):
         '''
         Exchange information of feat1 and feat2 with feat, using sentence feature
         as guidance.
@@ -278,10 +285,11 @@ class LSTM_model(object):
         gv_lang = self.global_vec(feat, lang_feat, level + 'gv_f1')  # [B, 1, 1, C]
         feat1 = self.lang_se(feat1, gv_lang, level + '_f1')
         feat2 = self.lang_se(feat2, gv_lang, level + '_f2')
-        feat_exg = feat + feat1 + feat2
+        feat2 = self.lang_se(feat3, gv_lang, level + '_f3')
+        feat_exg = feat + feat1 + feat2 + feat3
         return feat_exg
 
-    def gated_exchange_fusion_lstm_2times(self, feat3, feat4, feat5, lang_feat):
+    def gated_exchange_fusion_lstm_2times(self, feat2, feat3, feat4, feat5, lang_feat):
         '''
         Fuse exchanged features of level3, level4, level5
         LSTM is used to fuse the exchanged features
@@ -291,25 +299,29 @@ class LSTM_model(object):
         :param lang_feat: [B, 1, 1, C]
         :return: fused feat3, feat4, feat5
         '''
-        feat_exg3 = self.gated_exchange_module(feat3, feat4, feat5, lang_feat, 'c3')
+        feat_exg2 = self.gated_exchange_module(feat2, feat3, feat4, feat5, lang_feat, 'c2')
+        feat_exg2 = tf.nn.l2_normalize(feat_exg2, 3)
+        feat_exg3 = self.gated_exchange_module(feat3, feat2, feat4, feat5, lang_feat, 'c3')
         feat_exg3 = tf.nn.l2_normalize(feat_exg3, 3)
-        feat_exg4 = self.gated_exchange_module(feat4, feat3, feat5, lang_feat, 'c4')
+        feat_exg4 = self.gated_exchange_module(feat4, feat2, feat3, feat5, lang_feat, 'c4')
         feat_exg4 = tf.nn.l2_normalize(feat_exg4, 3)
-        feat_exg5 = self.gated_exchange_module(feat5, feat3, feat4, lang_feat, 'c5')
+        feat_exg5 = self.gated_exchange_module(feat5, feat2, feat3, feat4, lang_feat, 'c5')
         feat_exg5 = tf.nn.l2_normalize(feat_exg5, 3)
 
         # Second time
-        feat_exg3_2 = self.gated_exchange_module(feat_exg3, feat_exg4, feat_exg5, lang_feat, 'c3_2')
+        feat_exg2_2 = self.gated_exchange_module(feat_exg2, feat_exg3, feat_exg4, feat_exg5, lang_feat, 'c2_2')
+        feat_exg2_2 = tf.nn.l2_normalize(feat_exg2_2, 3)
+        feat_exg3_2 = self.gated_exchange_module(feat_exg3, feat_exg2, feat_exg4, feat_exg5, lang_feat, 'c3_2')
         feat_exg3_2 = tf.nn.l2_normalize(feat_exg3_2, 3)
-        feat_exg4_2 = self.gated_exchange_module(feat_exg4, feat_exg3, feat_exg5, lang_feat, 'c4_2')
+        feat_exg4_2 = self.gated_exchange_module(feat_exg4, feat_exg2, feat_exg3, feat_exg5, lang_feat, 'c4_2')
         feat_exg4_2 = tf.nn.l2_normalize(feat_exg4_2, 3)
-        feat_exg5_2 = self.gated_exchange_module(feat_exg5, feat_exg3, feat_exg4, lang_feat, 'c5_2')
+        feat_exg5_2 = self.gated_exchange_module(feat_exg5, feat_exg2, feat_exg3, feat_exg4, lang_feat, 'c5_2')
         feat_exg5_2 = tf.nn.l2_normalize(feat_exg5_2, 3)
 
         # Convolutional LSTM Fuse
-        convlstm_cell = ConvLSTMCell([self.vf_h, self.vf_w], self.mlp_dim, [1, 1])
+        convlstm_cell = ConvLSTMCell([self.vf_h, self.vf_w], self.mlp_dim, [3, 3])
         convlstm_outputs, states = tf.nn.dynamic_rnn(convlstm_cell, tf.convert_to_tensor(
-            [[feat_exg3_2[0], feat_exg4_2[0], feat_exg5_2[0]]]), dtype=tf.float32)
+            [[feat_exg2_2[0], feat_exg3_2[0], feat_exg4_2[0], feat_exg5_2[0]]]), dtype=tf.float32)
         fused_feat = convlstm_outputs[:, -1]
         print("Build Gated Fusion with ConvLSTM two times.")
 
@@ -452,9 +464,10 @@ class LSTM_model(object):
         self.cls_loss_c5 = loss.weighed_logistic_loss(self.up_c5, self.target_fine, 1, 1)
         self.cls_loss_c4 = loss.weighed_logistic_loss(self.up_c4, self.target_fine, 1, 1)
         self.cls_loss_c3 = loss.weighed_logistic_loss(self.up_c3, self.target_fine, 1, 1)
+        self.cls_loss_c2 = loss.weighed_logistic_loss(self.up_c2, self.target_fine, 1, 1)
         self.cls_loss = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
-        self.cls_loss_all = 0.7 * self.cls_loss + 0.1 * self.cls_loss_c5 \
-                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3
+        self.cls_loss_all = 0.6 * self.cls_loss + 0.1 * self.cls_loss_c5 \
+                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.1 * self.cls_loss_c2
         # self.iou_loss = loss.iou_loss(self.up, self.target_fine)
         # self.cls_loss_all = 0.4 * self.cls_loss + 0.1 * self.cls_loss_c5 \
         #                     + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.3 * self.iou_loss

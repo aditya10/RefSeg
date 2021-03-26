@@ -1,0 +1,623 @@
+absl-py (0.9.0)
+antlr (2.7.5rc1)
+appdirs (1.4.3)
+asn1crypto (0.24.0)
+astor (0.8.1)
+attrs (17.4.0)
+backports.functools-lru-cache (1.6.1)
+backports.shutil-get-terminal-size (1.0.0)
+backports.weakref (1.0.post1)
+beautifulsoup4 (4.6.0)
+bleach (2.1.2)
+caffe (1.0.0)
+certifi (2018.1.18)
+cffi (1.11.5)
+chardet (3.0.4)
+configparser (3.5.0)
+cryptography (2.1.4)
+cvxopt (1.1.9)
+cycler (0.10.0)
+Cython (0.29.21)
+decorator (4.4.2)
+enum34 (1.1.6)
+et-xmlfile (1.0.1)
+funcsigs (1.0.2)
+future (0.18.2)
+futures (3.3.0)
+gast (0.3.2)
+google-pasta (0.1.8)
+grpcio (1.26.0)
+h5py (2.10.0)
+hdf-compass (0.6.0)
+html5lib (0.999999999)
+idna (2.6)
+ipaddress (1.0.17)
+ipython (5.5.0)
+ipython-genutils (0.2.0)
+jdcal (1.0)
+joblib (0.11)
+Keras (2.3.1)
+Keras-Applications (1.0.8)
+Keras-Preprocessing (1.1.0)
+keyring (10.6.0)
+keyrings.alt (3.0)
+kiwisolver (1.1.0)
+leveldb (0.1)
+lxml (4.2.1)
+Mako (1.0.7)
+Markdown (3.1.1)
+MarkupSafe (1.0)
+matplotlib (2.2.5)
+mock (3.0.5)
+networkx (2.2)
+nltk (3.2.5)
+nose (1.3.7)
+nose-parameterized (0.3.4)
+numexpr (2.6.4)
+numpy (1.16.6)
+nvidia-ml-py (7.352.0)
+olefile (0.45.1)
+openpyxl (2.4.9)
+pandas (0.22.0)
+pathlib2 (2.3.0)
+patsy (0.4.1+dev)
+pbr (3.1.1)
+pexpect (4.2.1)
+pickleshare (0.7.4)
+Pillow (6.2.2)
+pip (9.0.1)
+pluggy (0.6.0)
+ply (3.11)
+prompt-toolkit (1.0.15)
+protobuf (3.11.2)
+py (1.5.2)
+pycairo (1.16.2)
+pycparser (2.18)
+pycrypto (2.6.1)
+pycuda (2019.1.2)
+pydensecrf (1.0rc3)
+pydot (1.2.3)
+pyflakes (1.6.0)
+Pygments (2.2.0)
+pygobject (3.26.1)
+pygpu (0.7.6)
+pyinotify (0.9.6)
+pyOpenSSL (17.5.0)
+pyparsing (2.4.7)
+pytest (3.3.2)
+python-dateutil (2.8.1)
+pytools (2017.6)
+pytz (2020.4)
+PyWavelets (1.0.3)
+pyxdg (0.25)
+PyYAML (5.3)
+requests (2.18.4)
+scandir (1.7)
+scikit-cuda (0.5.3)
+scikit-image (0.13.1)
+scikit-learn (0.19.1)
+scipy (1.2.3)
+scour (0.36)
+SecretStorage (2.3.1)
+setuptools (44.1.1)
+simplegeneric (0.8.1)
+simplejson (3.13.2)
+six (1.15.0)
+statsmodels (0.8.0)
+subprocess32 (3.5.4)
+tables (3.4.2)
+tensorboard (1.14.0)
+tensorflow-estimator (1.14.0)
+tensorflow-gpu (1.14.0)
+tensorflow-serving-api (1.15.0)
+termcolor (1.1.0)
+Theano (1.0.4)
+torch (1.3.1)
+torchvision (0.5.0)
+traitlets (4.3.2)
+typing (3.6.2)
+urllib3 (1.22)
+wcwidth (0.1.7)
+webencodings (0.5)
+Werkzeug (0.16.0)
+wheel (0.30.0)
+wrapt (1.11.2)
+wxPython (3.0.2.0)
+wxPython-common (3.0.2.0)
+xlrd (1.1.0)
+xlwt (0.7.5)
+Use pretrained Embeddings.
+Loaded embedding npy at data/Gref_emb.npy
+
+
+##############################
+Mutan_RAGR_p345_glove_gvec_validlang_2stage_4loss, 
+spatial graph = vis_la_sp, then gcn, 
+adj matrix in gcn is obtained by [HW, T] x [T, HW]. 
+words_parse: [entity, attribute, relation, unnecessary]. 
+Multi-modal feature is obtained by mutan fusion without dropout. 
+The valid language feature is obtained by [E, A]. 
+adj_mat * relation. 
+Fuse p345 with gvec_validlang as filters and validlang obtained by [E, A, R]
+Exchange features for two times. 
+4 losses are used to optimize. 
+Glove Embedding is used to initilize embedding layer.
+##############################
+
+
+Build Glove Embedding.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Gated Fusion with ConvLSTM two times.
+Collecting variables for regularization:
+	text_objseg/c5_lateral/DW:0
+	text_objseg/c4_lateral/DW:0
+	text_objseg/c3_lateral/DW:0
+	text_objseg/c2_lateral/DW:0
+	text_objseg/words_parse_1/DW:0
+	text_objseg/words_parse_2/DW:0
+	text_objseg/vis_trans_c5_head1/DW:0
+	text_objseg/lang_trans_c5_head1/DW:0
+	text_objseg/vis_trans_c5_head2/DW:0
+	text_objseg/lang_trans_c5_head2/DW:0
+	text_objseg/vis_trans_c5_head3/DW:0
+	text_objseg/lang_trans_c5_head3/DW:0
+	text_objseg/vis_trans_c5_head4/DW:0
+	text_objseg/lang_trans_c5_head4/DW:0
+	text_objseg/vis_trans_c5_head5/DW:0
+	text_objseg/lang_trans_c5_head5/DW:0
+	text_objseg/words_trans_c5/DW:0
+	text_objseg/spa_graph_trans2_c5/DW:0
+	text_objseg/gconv_update_spa_graph_c5/DW:0
+	text_objseg/fusion_c5/DW:0
+	text_objseg/vis_trans_c4_head1/DW:0
+	text_objseg/lang_trans_c4_head1/DW:0
+	text_objseg/vis_trans_c4_head2/DW:0
+	text_objseg/lang_trans_c4_head2/DW:0
+	text_objseg/vis_trans_c4_head3/DW:0
+	text_objseg/lang_trans_c4_head3/DW:0
+	text_objseg/vis_trans_c4_head4/DW:0
+	text_objseg/lang_trans_c4_head4/DW:0
+	text_objseg/vis_trans_c4_head5/DW:0
+	text_objseg/lang_trans_c4_head5/DW:0
+	text_objseg/words_trans_c4/DW:0
+	text_objseg/spa_graph_trans2_c4/DW:0
+	text_objseg/gconv_update_spa_graph_c4/DW:0
+	text_objseg/fusion_c4/DW:0
+	text_objseg/vis_trans_c3_head1/DW:0
+	text_objseg/lang_trans_c3_head1/DW:0
+	text_objseg/vis_trans_c3_head2/DW:0
+	text_objseg/lang_trans_c3_head2/DW:0
+	text_objseg/vis_trans_c3_head3/DW:0
+	text_objseg/lang_trans_c3_head3/DW:0
+	text_objseg/vis_trans_c3_head4/DW:0
+	text_objseg/lang_trans_c3_head4/DW:0
+	text_objseg/vis_trans_c3_head5/DW:0
+	text_objseg/lang_trans_c3_head5/DW:0
+	text_objseg/words_trans_c3/DW:0
+	text_objseg/spa_graph_trans2_c3/DW:0
+	text_objseg/gconv_update_spa_graph_c3/DW:0
+	text_objseg/fusion_c3/DW:0
+	text_objseg/vis_trans_c2_head1/DW:0
+	text_objseg/lang_trans_c2_head1/DW:0
+	text_objseg/vis_trans_c2_head2/DW:0
+	text_objseg/lang_trans_c2_head2/DW:0
+	text_objseg/vis_trans_c2_head3/DW:0
+	text_objseg/lang_trans_c2_head3/DW:0
+	text_objseg/vis_trans_c2_head4/DW:0
+	text_objseg/lang_trans_c2_head4/DW:0
+	text_objseg/vis_trans_c2_head5/DW:0
+	text_objseg/lang_trans_c2_head5/DW:0
+	text_objseg/words_trans_c2/DW:0
+	text_objseg/spa_graph_trans2_c2/DW:0
+	text_objseg/gconv_update_spa_graph_c2/DW:0
+	text_objseg/fusion_c2/DW:0
+	text_objseg/score_c5/DW:0
+	text_objseg/score_c4/DW:0
+	text_objseg/score_c3/DW:0
+	text_objseg/score_c2/DW:0
+	text_objseg/spa_graph_key_c2gv_f1/DW:0
+	text_objseg/lang_query_c2gv_f1/DW:0
+	text_objseg/gv_lang_c2gv_f1/DW:0
+	text_objseg/lang_feat_c2_f1/DW:0
+	text_objseg/trans_feat_c2_f1/DW:0
+	text_objseg/lang_feat_c2_f2/DW:0
+	text_objseg/trans_feat_c2_f2/DW:0
+	text_objseg/lang_feat_c2_f3/DW:0
+	text_objseg/trans_feat_c2_f3/DW:0
+	text_objseg/spa_graph_key_c3gv_f1/DW:0
+	text_objseg/lang_query_c3gv_f1/DW:0
+	text_objseg/gv_lang_c3gv_f1/DW:0
+	text_objseg/lang_feat_c3_f1/DW:0
+	text_objseg/trans_feat_c3_f1/DW:0
+	text_objseg/lang_feat_c3_f2/DW:0
+	text_objseg/trans_feat_c3_f2/DW:0
+	text_objseg/lang_feat_c3_f3/DW:0
+	text_objseg/trans_feat_c3_f3/DW:0
+	text_objseg/spa_graph_key_c4gv_f1/DW:0
+	text_objseg/lang_query_c4gv_f1/DW:0
+	text_objseg/gv_lang_c4gv_f1/DW:0
+	text_objseg/lang_feat_c4_f1/DW:0
+	text_objseg/trans_feat_c4_f1/DW:0
+	text_objseg/lang_feat_c4_f2/DW:0
+	text_objseg/trans_feat_c4_f2/DW:0
+	text_objseg/lang_feat_c4_f3/DW:0
+	text_objseg/trans_feat_c4_f3/DW:0
+	text_objseg/spa_graph_key_c5gv_f1/DW:0
+	text_objseg/lang_query_c5gv_f1/DW:0
+	text_objseg/gv_lang_c5gv_f1/DW:0
+	text_objseg/lang_feat_c5_f1/DW:0
+	text_objseg/trans_feat_c5_f1/DW:0
+	text_objseg/lang_feat_c5_f2/DW:0
+	text_objseg/trans_feat_c5_f2/DW:0
+	text_objseg/lang_feat_c5_f3/DW:0
+	text_objseg/trans_feat_c5_f3/DW:0
+	text_objseg/spa_graph_key_c2_2gv_f1/DW:0
+	text_objseg/lang_query_c2_2gv_f1/DW:0
+	text_objseg/gv_lang_c2_2gv_f1/DW:0
+	text_objseg/lang_feat_c2_2_f1/DW:0
+	text_objseg/trans_feat_c2_2_f1/DW:0
+	text_objseg/lang_feat_c2_2_f2/DW:0
+	text_objseg/trans_feat_c2_2_f2/DW:0
+	text_objseg/lang_feat_c2_2_f3/DW:0
+	text_objseg/trans_feat_c2_2_f3/DW:0
+	text_objseg/spa_graph_key_c3_2gv_f1/DW:0
+	text_objseg/lang_query_c3_2gv_f1/DW:0
+	text_objseg/gv_lang_c3_2gv_f1/DW:0
+	text_objseg/lang_feat_c3_2_f1/DW:0
+	text_objseg/trans_feat_c3_2_f1/DW:0
+	text_objseg/lang_feat_c3_2_f2/DW:0
+	text_objseg/trans_feat_c3_2_f2/DW:0
+	text_objseg/lang_feat_c3_2_f3/DW:0
+	text_objseg/trans_feat_c3_2_f3/DW:0
+	text_objseg/spa_graph_key_c4_2gv_f1/DW:0
+	text_objseg/lang_query_c4_2gv_f1/DW:0
+	text_objseg/gv_lang_c4_2gv_f1/DW:0
+	text_objseg/lang_feat_c4_2_f1/DW:0
+	text_objseg/trans_feat_c4_2_f1/DW:0
+	text_objseg/lang_feat_c4_2_f2/DW:0
+	text_objseg/trans_feat_c4_2_f2/DW:0
+	text_objseg/lang_feat_c4_2_f3/DW:0
+	text_objseg/trans_feat_c4_2_f3/DW:0
+	text_objseg/spa_graph_key_c5_2gv_f1/DW:0
+	text_objseg/lang_query_c5_2gv_f1/DW:0
+	text_objseg/gv_lang_c5_2gv_f1/DW:0
+	text_objseg/lang_feat_c5_2_f1/DW:0
+	text_objseg/trans_feat_c5_2_f1/DW:0
+	text_objseg/lang_feat_c5_2_f2/DW:0
+	text_objseg/trans_feat_c5_2_f2/DW:0
+	text_objseg/lang_feat_c5_2_f3/DW:0
+	text_objseg/trans_feat_c5_2_f3/DW:0
+	text_objseg/score/DW:0
+Done.
+Variable learning rate multiplication:
+	text_objseg/Variable:0: 1.000000
+	text_objseg/RNN/multi_rnn_cell/cell_0/basic_lstm_cell/kernel:0: 1.000000
+	text_objseg/RNN/multi_rnn_cell/cell_0/basic_lstm_cell/bias:0: 1.000000
+	text_objseg/c5_lateral/DW:0: 1.000000
+	text_objseg/c5_lateral/biases:0: 2.000000
+	text_objseg/c4_lateral/DW:0: 1.000000
+	text_objseg/c4_lateral/biases:0: 2.000000
+	text_objseg/c3_lateral/DW:0: 1.000000
+	text_objseg/c3_lateral/biases:0: 2.000000
+	text_objseg/c2_lateral/DW:0: 1.000000
+	text_objseg/c2_lateral/biases:0: 2.000000
+	text_objseg/words_parse_1/DW:0: 1.000000
+	text_objseg/words_parse_1/biases:0: 2.000000
+	text_objseg/words_parse_2/DW:0: 1.000000
+	text_objseg/words_parse_2/biases:0: 2.000000
+	text_objseg/vis_trans_c5_head1/DW:0: 1.000000
+	text_objseg/vis_trans_c5_head1/biases:0: 2.000000
+	text_objseg/lang_trans_c5_head1/DW:0: 1.000000
+	text_objseg/lang_trans_c5_head1/biases:0: 2.000000
+	text_objseg/vis_trans_c5_head2/DW:0: 1.000000
+	text_objseg/vis_trans_c5_head2/biases:0: 2.000000
+	text_objseg/lang_trans_c5_head2/DW:0: 1.000000
+	text_objseg/lang_trans_c5_head2/biases:0: 2.000000
+	text_objseg/vis_trans_c5_head3/DW:0: 1.000000
+	text_objseg/vis_trans_c5_head3/biases:0: 2.000000
+	text_objseg/lang_trans_c5_head3/DW:0: 1.000000
+	text_objseg/lang_trans_c5_head3/biases:0: 2.000000
+	text_objseg/vis_trans_c5_head4/DW:0: 1.000000
+	text_objseg/vis_trans_c5_head4/biases:0: 2.000000
+	text_objseg/lang_trans_c5_head4/DW:0: 1.000000
+	text_objseg/lang_trans_c5_head4/biases:0: 2.000000
+	text_objseg/vis_trans_c5_head5/DW:0: 1.000000
+	text_objseg/vis_trans_c5_head5/biases:0: 2.000000
+	text_objseg/lang_trans_c5_head5/DW:0: 1.000000
+	text_objseg/lang_trans_c5_head5/biases:0: 2.000000
+	text_objseg/words_trans_c5/DW:0: 1.000000
+	text_objseg/words_trans_c5/biases:0: 2.000000
+	text_objseg/spa_graph_trans2_c5/DW:0: 1.000000
+	text_objseg/spa_graph_trans2_c5/biases:0: 2.000000
+	text_objseg/gconv_feat_ln_spa_graph_c5/beta:0: 1.000000
+	text_objseg/gconv_feat_ln_spa_graph_c5/gamma:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c5/DW:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c5/biases:0: 2.000000
+	text_objseg/gconv_update_ln_spa_graph_c5/beta:0: 1.000000
+	text_objseg/gconv_update_ln_spa_graph_c5/gamma:0: 1.000000
+	text_objseg/fusion_c5/DW:0: 1.000000
+	text_objseg/fusion_c5/biases:0: 2.000000
+	text_objseg/vis_trans_c4_head1/DW:0: 1.000000
+	text_objseg/vis_trans_c4_head1/biases:0: 2.000000
+	text_objseg/lang_trans_c4_head1/DW:0: 1.000000
+	text_objseg/lang_trans_c4_head1/biases:0: 2.000000
+	text_objseg/vis_trans_c4_head2/DW:0: 1.000000
+	text_objseg/vis_trans_c4_head2/biases:0: 2.000000
+	text_objseg/lang_trans_c4_head2/DW:0: 1.000000
+	text_objseg/lang_trans_c4_head2/biases:0: 2.000000
+	text_objseg/vis_trans_c4_head3/DW:0: 1.000000
+	text_objseg/vis_trans_c4_head3/biases:0: 2.000000
+	text_objseg/lang_trans_c4_head3/DW:0: 1.000000
+	text_objseg/lang_trans_c4_head3/biases:0: 2.000000
+	text_objseg/vis_trans_c4_head4/DW:0: 1.000000
+	text_objseg/vis_trans_c4_head4/biases:0: 2.000000
+	text_objseg/lang_trans_c4_head4/DW:0: 1.000000
+	text_objseg/lang_trans_c4_head4/biases:0: 2.000000
+	text_objseg/vis_trans_c4_head5/DW:0: 1.000000
+	text_objseg/vis_trans_c4_head5/biases:0: 2.000000
+	text_objseg/lang_trans_c4_head5/DW:0: 1.000000
+	text_objseg/lang_trans_c4_head5/biases:0: 2.000000
+	text_objseg/words_trans_c4/DW:0: 1.000000
+	text_objseg/words_trans_c4/biases:0: 2.000000
+	text_objseg/spa_graph_trans2_c4/DW:0: 1.000000
+	text_objseg/spa_graph_trans2_c4/biases:0: 2.000000
+	text_objseg/gconv_feat_ln_spa_graph_c4/beta:0: 1.000000
+	text_objseg/gconv_feat_ln_spa_graph_c4/gamma:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c4/DW:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c4/biases:0: 2.000000
+	text_objseg/gconv_update_ln_spa_graph_c4/beta:0: 1.000000
+	text_objseg/gconv_update_ln_spa_graph_c4/gamma:0: 1.000000
+	text_objseg/fusion_c4/DW:0: 1.000000
+	text_objseg/fusion_c4/biases:0: 2.000000
+	text_objseg/vis_trans_c3_head1/DW:0: 1.000000
+	text_objseg/vis_trans_c3_head1/biases:0: 2.000000
+	text_objseg/lang_trans_c3_head1/DW:0: 1.000000
+	text_objseg/lang_trans_c3_head1/biases:0: 2.000000
+	text_objseg/vis_trans_c3_head2/DW:0: 1.000000
+	text_objseg/vis_trans_c3_head2/biases:0: 2.000000
+	text_objseg/lang_trans_c3_head2/DW:0: 1.000000
+	text_objseg/lang_trans_c3_head2/biases:0: 2.000000
+	text_objseg/vis_trans_c3_head3/DW:0: 1.000000
+	text_objseg/vis_trans_c3_head3/biases:0: 2.000000
+	text_objseg/lang_trans_c3_head3/DW:0: 1.000000
+	text_objseg/lang_trans_c3_head3/biases:0: 2.000000
+	text_objseg/vis_trans_c3_head4/DW:0: 1.000000
+	text_objseg/vis_trans_c3_head4/biases:0: 2.000000
+	text_objseg/lang_trans_c3_head4/DW:0: 1.000000
+	text_objseg/lang_trans_c3_head4/biases:0: 2.000000
+	text_objseg/vis_trans_c3_head5/DW:0: 1.000000
+	text_objseg/vis_trans_c3_head5/biases:0: 2.000000
+	text_objseg/lang_trans_c3_head5/DW:0: 1.000000
+	text_objseg/lang_trans_c3_head5/biases:0: 2.000000
+	text_objseg/words_trans_c3/DW:0: 1.000000
+	text_objseg/words_trans_c3/biases:0: 2.000000
+	text_objseg/spa_graph_trans2_c3/DW:0: 1.000000
+	text_objseg/spa_graph_trans2_c3/biases:0: 2.000000
+	text_objseg/gconv_feat_ln_spa_graph_c3/beta:0: 1.000000
+	text_objseg/gconv_feat_ln_spa_graph_c3/gamma:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c3/DW:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c3/biases:0: 2.000000
+	text_objseg/gconv_update_ln_spa_graph_c3/beta:0: 1.000000
+	text_objseg/gconv_update_ln_spa_graph_c3/gamma:0: 1.000000
+	text_objseg/fusion_c3/DW:0: 1.000000
+	text_objseg/fusion_c3/biases:0: 2.000000
+	text_objseg/vis_trans_c2_head1/DW:0: 1.000000
+	text_objseg/vis_trans_c2_head1/biases:0: 2.000000
+	text_objseg/lang_trans_c2_head1/DW:0: 1.000000
+	text_objseg/lang_trans_c2_head1/biases:0: 2.000000
+	text_objseg/vis_trans_c2_head2/DW:0: 1.000000
+	text_objseg/vis_trans_c2_head2/biases:0: 2.000000
+	text_objseg/lang_trans_c2_head2/DW:0: 1.000000
+	text_objseg/lang_trans_c2_head2/biases:0: 2.000000
+	text_objseg/vis_trans_c2_head3/DW:0: 1.000000
+	text_objseg/vis_trans_c2_head3/biases:0: 2.000000
+	text_objseg/lang_trans_c2_head3/DW:0: 1.000000
+	text_objseg/lang_trans_c2_head3/biases:0: 2.000000
+	text_objseg/vis_trans_c2_head4/DW:0: 1.000000
+	text_objseg/vis_trans_c2_head4/biases:0: 2.000000
+	text_objseg/lang_trans_c2_head4/DW:0: 1.000000
+	text_objseg/lang_trans_c2_head4/biases:0: 2.000000
+	text_objseg/vis_trans_c2_head5/DW:0: 1.000000
+	text_objseg/vis_trans_c2_head5/biases:0: 2.000000
+	text_objseg/lang_trans_c2_head5/DW:0: 1.000000
+	text_objseg/lang_trans_c2_head5/biases:0: 2.000000
+	text_objseg/words_trans_c2/DW:0: 1.000000
+	text_objseg/words_trans_c2/biases:0: 2.000000
+	text_objseg/spa_graph_trans2_c2/DW:0: 1.000000
+	text_objseg/spa_graph_trans2_c2/biases:0: 2.000000
+	text_objseg/gconv_feat_ln_spa_graph_c2/beta:0: 1.000000
+	text_objseg/gconv_feat_ln_spa_graph_c2/gamma:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c2/DW:0: 1.000000
+	text_objseg/gconv_update_spa_graph_c2/biases:0: 2.000000
+	text_objseg/gconv_update_ln_spa_graph_c2/beta:0: 1.000000
+	text_objseg/gconv_update_ln_spa_graph_c2/gamma:0: 1.000000
+	text_objseg/fusion_c2/DW:0: 1.000000
+	text_objseg/fusion_c2/biases:0: 2.000000
+	text_objseg/score_c5/DW:0: 1.000000
+	text_objseg/score_c5/biases:0: 2.000000
+	text_objseg/score_c4/DW:0: 1.000000
+	text_objseg/score_c4/biases:0: 2.000000
+	text_objseg/score_c3/DW:0: 1.000000
+	text_objseg/score_c3/biases:0: 2.000000
+	text_objseg/score_c2/DW:0: 1.000000
+	text_objseg/score_c2/biases:0: 2.000000
+	text_objseg/spa_graph_key_c2gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c2gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c2gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c2gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c2gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c2gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c2_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c2_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c2_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c2_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c2_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c2_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c2_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c2_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c2_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c2_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c2_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c2_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c3gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c3gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c3gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c3gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c3gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c3gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c3_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c3_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c3_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c3_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c3_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c3_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c3_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c3_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c3_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c3_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c3_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c3_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c4gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c4gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c4gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c4gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c4gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c4gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c4_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c4_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c4_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c4_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c4_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c4_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c4_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c4_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c4_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c4_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c4_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c4_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c5gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c5gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c5gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c5gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c5gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c5gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c5_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c5_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c5_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c5_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c5_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c5_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c5_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c5_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c5_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c5_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c5_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c5_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c2_2gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c2_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c2_2gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c2_2gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c2_2gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c2_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c2_2_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c2_2_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c2_2_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c2_2_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c2_2_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c2_2_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c2_2_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c2_2_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c2_2_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c2_2_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c2_2_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c2_2_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c3_2gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c3_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c3_2gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c3_2gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c3_2gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c3_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c3_2_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c3_2_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c3_2_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c3_2_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c3_2_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c3_2_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c3_2_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c3_2_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c3_2_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c3_2_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c3_2_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c3_2_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c4_2gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c4_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c4_2gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c4_2gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c4_2gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c4_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c4_2_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c4_2_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c4_2_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c4_2_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c4_2_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c4_2_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c4_2_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c4_2_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c4_2_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c4_2_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c4_2_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c4_2_f3/biases:0: 2.000000
+	text_objseg/spa_graph_key_c5_2gv_f1/DW:0: 1.000000
+	text_objseg/spa_graph_key_c5_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_query_c5_2gv_f1/DW:0: 1.000000
+	text_objseg/lang_query_c5_2gv_f1/biases:0: 2.000000
+	text_objseg/gv_lang_c5_2gv_f1/DW:0: 1.000000
+	text_objseg/gv_lang_c5_2gv_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c5_2_f1/DW:0: 1.000000
+	text_objseg/lang_feat_c5_2_f1/biases:0: 2.000000
+	text_objseg/trans_feat_c5_2_f1/DW:0: 1.000000
+	text_objseg/trans_feat_c5_2_f1/biases:0: 2.000000
+	text_objseg/lang_feat_c5_2_f2/DW:0: 1.000000
+	text_objseg/lang_feat_c5_2_f2/biases:0: 2.000000
+	text_objseg/trans_feat_c5_2_f2/DW:0: 1.000000
+	text_objseg/trans_feat_c5_2_f2/biases:0: 2.000000
+	text_objseg/lang_feat_c5_2_f3/DW:0: 1.000000
+	text_objseg/lang_feat_c5_2_f3/biases:0: 2.000000
+	text_objseg/trans_feat_c5_2_f3/DW:0: 1.000000
+	text_objseg/trans_feat_c5_2_f3/biases:0: 2.000000
+	text_objseg/rnn/conv_lstm_cell/kernel:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/W_ci:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/W_cf:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm/beta:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm/gamma:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_1/beta:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_1/gamma:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_2/beta:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_2/gamma:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/W_co:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_3/beta:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_3/gamma:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_4/beta:0: 1.000000
+	text_objseg/rnn/conv_lstm_cell/LayerNorm_4/gamma:0: 1.000000
+	text_objseg/score/DW:0: 1.000000
+	text_objseg/score/biases:0: 2.000000
+Done.

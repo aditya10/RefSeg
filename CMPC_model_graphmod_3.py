@@ -180,9 +180,20 @@ class LSTM_model(object):
         valid_lang = self.nec_lang(words_parse, words_feat)
         fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
                                                              fusion_c4, fusion_c5, valid_lang)
-        score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        score_base = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        self.pred_base = score_base
+        self.up_base = tf.image.resize_bilinear(self.pred_base, [self.H, self.W])
+        self.sigm_base = tf.sigmoid(self.up_base)
 
-        self.pred = score
+        # Modification: Using fused features to create another vision-language graph
+        visual_feat_fused = self._conv("fused_feats", fused_feats, 1, self.mlp_dim, self.v_emb_dim, [1, 1, 1, 1])
+        visual_feat_fused = tf.nn.l2_normalize(visual_feat_fused, 3)
+        fusion_graph_feats = self.build_lang2vis(visual_feat_fused, words_feat, lang_feat,
+                                        words_parse, spatial, level="fusion")
+
+        score_fusion = self._conv("score_fusion", fusion_graph_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+    
+        self.pred = score_fusion
         self.up = tf.image.resize_bilinear(self.pred, [self.H, self.W])
         self.sigm = tf.sigmoid(self.up)
 
@@ -452,8 +463,9 @@ class LSTM_model(object):
         self.cls_loss_c5 = loss.weighed_logistic_loss(self.up_c5, self.target_fine, 1, 1)
         self.cls_loss_c4 = loss.weighed_logistic_loss(self.up_c4, self.target_fine, 1, 1)
         self.cls_loss_c3 = loss.weighed_logistic_loss(self.up_c3, self.target_fine, 1, 1)
+        self.cls_loss_base = loss.weighed_logistic_loss(self.up_base, self.target_fine, 1, 1)
         self.cls_loss = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
-        self.cls_loss_all = 0.7 * self.cls_loss + 0.1 * self.cls_loss_c5 \
+        self.cls_loss_all = 0.3 * self.cls_loss + 0.2 * self.cls_loss_base + 0.1 * self.cls_loss_c5 \
                             + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3
         # self.iou_loss = loss.iou_loss(self.up, self.target_fine)
         # self.cls_loss_all = 0.4 * self.cls_loss + 0.1 * self.cls_loss_c5 \
