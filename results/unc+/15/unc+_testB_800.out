@@ -1,0 +1,207 @@
+/usr/local/lib/python2.7/dist-packages/h5py/__init__.py:46: RuntimeWarning: numpy.dtype size changed, may indicate binary incompatibility. Expected 88 from C header, got 96 from PyObject
+  from ._conv import register_converters as _register_converters
+/usr/local/lib/python2.7/dist-packages/h5py/__init__.py:55: RuntimeWarning: numpy.dtype size changed, may indicate binary incompatibility. Expected 88 from C header, got 96 from PyObject
+  from . import h5a, h5d, h5ds, h5f, h5fd, h5g, h5r, h5s, h5t, h5p, h5z, h5pl
+/usr/local/lib/python2.7/dist-packages/h5py/_hl/group.py:23: RuntimeWarning: numpy.dtype size changed, may indicate binary incompatibility. Expected 88 from C header, got 96 from PyObject
+  from .. import h5, h5g, h5i, h5o, h5r, h5t, h5l, h5p, h5s, h5d
+WARNING:tensorflow:
+The TensorFlow contrib module will not be included in TensorFlow 2.0.
+For more information, please see:
+  * https://github.com/tensorflow/community/blob/master/rfcs/20180907-contrib-sunset.md
+  * https://github.com/tensorflow/addons
+  * https://github.com/tensorflow/io (for I/O related ops)
+If you depend on functionality not listed there, please file an issue.
+
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/util/cell.py:3: The name tf.nn.rnn_cell.RNNCell is deprecated. Please use tf.compat.v1.nn.rnn_cell.RNNCell instead.
+
+Loading trained weights from /ubc/cs/research/shield/projects/aditya10/RefSeg/ckpts/unc+/15/unc+_iter_800000.tfmodel
+Use pretrained Embeddings.
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/CMPC_model_graphmod_dup_loss_2.py:68: The name tf.placeholder is deprecated. Please use tf.compat.v1.placeholder instead.
+
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/external/tensorflow-deeplab-resnet/kaffe/tensorflow/network.py:45: The name tf.placeholder_with_default is deprecated. Please use tf.compat.v1.placeholder_with_default instead.
+
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/external/tensorflow-deeplab-resnet/kaffe/tensorflow/network.py:127: The name tf.variable_scope is deprecated. Please use tf.compat.v1.variable_scope instead.
+
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/external/tensorflow-deeplab-resnet/kaffe/tensorflow/network.py:99: The name tf.get_variable is deprecated. Please use tf.compat.v1.get_variable instead.
+
+WARNING:tensorflow:From /usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/init_ops.py:1251: calling __init__ (from tensorflow.python.ops.init_ops) with dtype is deprecated and will be removed in a future version.
+Instructions for updating:
+Call initializer instance with the dtype argument instead of passing it to the constructor
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/external/tensorflow-deeplab-resnet/kaffe/tensorflow/network.py:197: The name tf.nn.max_pool is deprecated. Please use tf.nn.max_pool2d instead.
+
+Loaded embedding npy at data/Gref_emb.npy
+
+
+##############################
+Mutan_RAGR_p345_glove_gvec_validlang_2stage_4loss, 
+spatial graph = vis_la_sp, then gcn, 
+adj matrix in gcn is obtained by [HW, T] x [T, HW]. 
+words_parse: [entity, attribute, relation, unnecessary]. 
+Multi-modal feature is obtained by mutan fusion without dropout. 
+The valid language feature is obtained by [E, A]. 
+adj_mat * relation. 
+Fuse p345 with gvec_validlang as filters and validlang obtained by [E, A, R]
+Exchange features for two times. 
+4 losses are used to optimize. 
+Glove Embedding is used to initilize embedding layer.
+##############################
+
+
+Build Glove Embedding.
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/CMPC_model_graphmod_dup_loss_2.py:112: __init__ (from tensorflow.python.ops.rnn_cell_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This class is equivalent as tf.keras.layers.LSTMCell, and will be replaced by that in Tensorflow 2.0.
+WARNING:tensorflow:<tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>: Using a concatenated state is slower and will soon be deprecated.  Use state_is_tuple=True.
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/CMPC_model_graphmod_dup_loss_2.py:115: __init__ (from tensorflow.python.ops.rnn_cell_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This class is equivalent as tf.keras.layers.StackedRNNCells, and will be replaced by that in Tensorflow 2.0.
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/CMPC_model_graphmod_dup_loss_2.py:135: The name tf.AUTO_REUSE is deprecated. Please use tf.compat.v1.AUTO_REUSE instead.
+
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:From /usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/rnn_cell_impl.py:738: calling __init__ (from tensorflow.python.ops.init_ops) with dtype is deprecated and will be removed in a future version.
+Instructions for updating:
+Call initializer instance with the dtype argument instead of passing it to the constructor
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+WARNING:tensorflow:Entity <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method MultiRNNCell.call of <tensorflow.python.ops.rnn_cell_impl.MultiRNNCell object at 0x7fbf00229e10>>: AttributeError: 'module' object has no attribute 'Num'
+WARNING:tensorflow:Entity <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method BasicLSTMCell.call of <tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x7fbf00229e50>>: AssertionError: Bad argument number for Name: 3, expecting 4
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/CMPC_model_graphmod_dup_loss_2.py:177: The name tf.image.resize_bilinear is deprecated. Please use tf.compat.v1.image.resize_bilinear instead.
+
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/CMPC_model_graphmod_dup_loss_2.py:341: dynamic_rnn (from tensorflow.python.ops.rnn) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `keras.layers.RNN(cell)`, which is equivalent to this API
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/util/cell.py:30: The name tf.nn.rnn_cell.LSTMStateTuple is deprecated. Please use tf.compat.v1.nn.rnn_cell.LSTMStateTuple instead.
+
+WARNING:tensorflow:Entity <bound method ConvLSTMCell.call of <util.cell.ConvLSTMCell object at 0x7fbefa0acd10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method ConvLSTMCell.call of <util.cell.ConvLSTMCell object at 0x7fbefa0acd10>>: AttributeError: 'module' object has no attribute 'Num'
+Build Gated Fusion with ConvLSTM two times.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+WARNING:tensorflow:Entity <bound method ConvLSTMCell.call of <util.cell.ConvLSTMCell object at 0x7fbef98a8950>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method ConvLSTMCell.call of <util.cell.ConvLSTMCell object at 0x7fbef98a8950>>: AttributeError: 'module' object has no attribute 'Num'
+Build Gated Fusion with ConvLSTM two times.
+WARNING:tensorflow:From /ubc/cs/research/shield/projects/aditya10/RefSeg/trainval_model.py:534: The name tf.train.Saver is deprecated. Please use tf.compat.v1.train.Saver instead.
+
+2021-04-21 18:44:59.969434: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
+2021-04-21 18:44:59.975802: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcuda.so.1
+2021-04-21 18:45:01.308586: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55e9b40b79b0 executing computations on platform CUDA. Devices:
+2021-04-21 18:45:01.308638: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Quadro RTX 6000, Compute Capability 7.5
+2021-04-21 18:45:01.314017: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2200000000 Hz
+2021-04-21 18:45:01.314281: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55e9b3fbb6b0 executing computations on platform Host. Devices:
+2021-04-21 18:45:01.314305: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): <undefined>, <undefined>
+2021-04-21 18:45:01.315699: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1640] Found device 0 with properties: 
+name: Quadro RTX 6000 major: 7 minor: 5 memoryClockRate(GHz): 1.77
+pciBusID: 0000:1d:00.0
+2021-04-21 18:45:01.315943: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcudart.so.10.0
+2021-04-21 18:45:01.317437: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcublas.so.10.0
+2021-04-21 18:45:01.318790: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcufft.so.10.0
+2021-04-21 18:45:01.319099: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcurand.so.10.0
+2021-04-21 18:45:01.320871: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcusolver.so.10.0
+2021-04-21 18:45:01.322262: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcusparse.so.10.0
+2021-04-21 18:45:01.326462: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcudnn.so.7
+2021-04-21 18:45:01.329063: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1763] Adding visible gpu devices: 0
+2021-04-21 18:45:01.329110: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcudart.so.10.0
+2021-04-21 18:45:01.330940: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1181] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-04-21 18:45:01.330953: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1187]      0 
+2021-04-21 18:45:01.330958: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1200] 0:   N 
+2021-04-21 18:45:01.333254: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1326] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 22845 MB memory) -> physical GPU (device: 0, name: Quadro RTX 6000, pci bus id: 0000:1d:00.0, compute capability: 7.5)
+WARNING:tensorflow:From /usr/local/lib/python2.7/dist-packages/tensorflow/python/training/saver.py:1276: checkpoint_exists (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use standard file APIs to check for files with this prefix.
+found 4889 batches under /ubc/cs/research/shield/datasets/refer/data/unc+/ with prefix "unc+_testB"
+0.0data reader: waiting for file input (IO is slow)...Reading hdf5 file...
+
+/ubc/cs/research/shield/projects/aditya10/python-packages/skimage/transform/_warps.py:84: UserWarning: The default mode, 'constant', will be changed to 'reflect' in skimage 0.15.
+  warn("The default mode, 'constant', will be changed to 'reflect' in "
+/ubc/cs/research/shield/projects/aditya10/python-packages/skimage/util/dtype.py:122: UserWarning: Possible precision loss when converting from float64 to uint8
+  .format(dtypeobj_in, dtypeobj_out))
+2021-04-21 18:45:17.694599: E tensorflow/core/grappler/optimizers/dependency_optimizer.cc:697] Iteration = 0, topological sort failed with message: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:17.715627: E tensorflow/core/grappler/optimizers/dependency_optimizer.cc:697] Iteration = 1, topological sort failed with message: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:17.741691: E tensorflow/core/grappler/optimizers/meta_optimizer.cc:502] layout failed: Invalid argument: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:17.975835: E tensorflow/core/grappler/optimizers/meta_optimizer.cc:502] remapper failed: Invalid argument: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:17.993292: E tensorflow/core/grappler/optimizers/meta_optimizer.cc:502] arithmetic_optimizer failed: Invalid argument: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:18.007551: E tensorflow/core/grappler/optimizers/dependency_optimizer.cc:697] Iteration = 0, topological sort failed with message: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:18.026753: E tensorflow/core/grappler/optimizers/dependency_optimizer.cc:697] Iteration = 1, topological sort failed with message: The graph couldn't be sorted in topological order.
+2021-04-21 18:45:18.757640: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcublas.so.10.0
+2021-04-21 18:45:18.988145: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcudnn.so.7
+/ubc/cs/research/shield/projects/aditya10/RefSeg/trainval_model.py:617: RuntimeWarning: divide by zero encountered in log
+  U = np.expand_dims(-np.log(sigm_val), axis=0)
+....1.0....2.0....3.0....4.0....5.0....6.0....7.0....8.0....9.0....10.0Segmentation evaluation (without DenseCRF):
+precision@0.5 = 0.469830
+precision@0.6 = 0.408673
+precision@0.7 = 0.324811
+precision@0.8 = 0.221722
+precision@0.9 = 0.067498
+overall IoU = 0.423689; mean IoU = 0.430787
+
+Segmentation evaluation (with DenseCRF):
+precision@0.5 = 0.471262
+precision@0.6 = 0.409286
+precision@0.7 = 0.335242
+precision@0.8 = 0.240949
+precision@0.9 = 0.088157
+overall IoU = 0.425886; mean IoU = 0.430689
+
+overall base IoU = 0.419478; mean IoU = 0.422248
+

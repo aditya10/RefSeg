@@ -14,7 +14,6 @@ class LSTM_model(object):
 
     def __init__(self, batch_size=1,
                  num_steps=20,
-                 num_graphloop=2,
                  vf_h=40,
                  vf_w=40,
                  H=320,
@@ -38,9 +37,9 @@ class LSTM_model(object):
                  conv5=False,
                  glove_dim=300,
                  emb_name='Gref'):
+        tf.keras.backend.clear_session()
         self.batch_size = batch_size
         self.num_steps = num_steps
-        self.num_graphloop = num_graphloop
         self.vf_h = vf_h
         self.vf_w = vf_w
         self.H = H
@@ -79,8 +78,6 @@ class LSTM_model(object):
         glove_np = np.load('data/{}_emb.npy'.format(self.emb_name))
         print("Loaded embedding npy at data/{}_emb.npy".format(self.emb_name))
         self.glove = tf.convert_to_tensor(glove_np, tf.float32)  # [vocab_size, 400]
-
-        self.pred_base = None
 
         with tf.variable_scope("text_objseg"):
             self.build_graph()
@@ -132,7 +129,7 @@ class LSTM_model(object):
                 w_emb = tf.nn.dropout(w_emb, self.keep_prob_emb)
             return cell(w_emb, state)
 
-        with tf.variable_scope("RNN", reuse=tf.AUTO_REUSE):
+        with tf.variable_scope("RNN"):
             for n in range(self.num_steps):
                 if n > 0:
                     tf.get_variable_scope().reuse_variables()
@@ -164,7 +161,7 @@ class LSTM_model(object):
         spatial = tf.convert_to_tensor(generate_spatial_batch(self.batch_size, self.vf_h, self.vf_w))
 
         words_parse = self.build_lang_parser(words_feat)
-        
+
         fusion_c5 = self.build_lang2vis(visual_feat_c5, words_feat, lang_feat,
                                         words_parse, spatial, level="c5")
         fusion_c4 = self.build_lang2vis(visual_feat_c4, words_feat, lang_feat,
@@ -172,6 +169,11 @@ class LSTM_model(object):
         fusion_c3 = self.build_lang2vis(visual_feat_c3, words_feat, lang_feat,
                                         words_parse, spatial, level="c3")
 
+        valid_lang = self.nec_lang(words_parse, words_feat)
+        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
+                                                             fusion_c4, fusion_c5, valid_lang)
+        score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
+        
         # For multi-level losses
         score_c5 = self._conv("score_c5", fusion_c5, 3, self.mlp_dim, 1, [1, 1, 1, 1])
         self.up_c5 = tf.image.resize_bilinear(score_c5, [self.H, self.W])
@@ -180,38 +182,60 @@ class LSTM_model(object):
         score_c3 = self._conv("score_c3", fusion_c3, 3, self.mlp_dim, 1, [1, 1, 1, 1])
         self.up_c3 = tf.image.resize_bilinear(score_c3, [self.H, self.W])
 
-        valid_lang = self.nec_lang(words_parse, words_feat)
-        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
-                                                            fusion_c4, fusion_c5, valid_lang)
-        score = self._conv("score", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
         self.pred_base = score
-
         self.up_base = tf.image.resize_bilinear(self.pred_base, [self.H, self.W])
-        self.sigm_base = tf.sigmoid(self.up_base)
 
-        fusion_c5 = self.build_lang2vis(visual_feat_c5, words_feat, lang_feat,
-                                        words_parse, spatial, level="c5")
-        fusion_c4 = self.build_lang2vis(visual_feat_c4, words_feat, lang_feat,
-                                        words_parse, spatial, level="c4")
-        fusion_c3 = self.build_lang2vis(visual_feat_c3, words_feat, lang_feat,
-                                        words_parse, spatial, level="c3")
+        ########################
+        # REFINEMENT
+        ########################
+        upscore = tf.image.resize_bilinear(score, [224, 224])
+        self.imval = tf.image.resize_bilinear(self.im, [224, 224])
+        dx, dy = tf.image.image_gradients(self.imval)
+        upimgscore = tf.concat([upscore, dx, dy], 3)
+        self.upscore = upimgscore
 
-        # For multi-level losses
-        # score_c5_2 = self._conv("score_c5", fusion_c5, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-        # self.up_c5_2 = tf.image.resize_bilinear(score_c5 + score_c5_2, [self.H, self.W])
-        # score_c4_2 = self._conv("score_c4", fusion_c4, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-        # self.up_c4_2 = tf.image.resize_bilinear(score_c4 + score_c4_2, [self.H, self.W])
-        # score_c3_2 = self._conv("score_c3", fusion_c3, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-        # self.up_c3_2 = tf.image.resize_bilinear(score_c3 + score_c3_2, [self.H, self.W])
+        b1 = self._conv("b1", upimgscore, 3, 7, 64, [1, 1, 1, 1])
 
-        valid_lang = self.nec_lang(words_parse, words_feat)
-        fused_feats = self.gated_exchange_fusion_lstm_2times(fusion_c3,
-                                                            fusion_c4, fusion_c5, valid_lang)
-        score_2 = self._conv("score_2", fused_feats, 3, self.mlp_dim, 1, [1, 1, 1, 1])
-        self.pred = score + score_2
+        b2 = self._conv("b2", b1, 3, 64, 64, [1, 1, 1, 1])
+        b2 = tf.nn.max_pool2d(b2, 2, 2, 'SAME')
+
+        b3 = self._conv("b3", b2, 3, 64, 64, [1, 1, 1, 1])
+        b3 = tf.nn.max_pool2d(b3, 2, 2, 'SAME')
+
+        b4 = self._conv("b4", b3, 3, 64, 64, [1, 1, 1, 1])
+        b4 = tf.nn.max_pool2d(b4, 2, 2, 'SAME')
+
+        b5 = self._conv("b5", b4, 3, 64, 64, [1, 1, 1, 1])
+        b5 = tf.nn.max_pool2d(b5, 2, 2, 'SAME')
+
+        l4 = self._conv("l4", b5, 3, 64, 64, [1, 1, 1, 1])
+        l4 = tf.nn.relu(l4)
+        l4 = tf.image.resize_bilinear(l4, [28, 28])
+        l4 = b4 + l4
+
+        l3 = self._conv("l3", l4, 3, 64, 64, [1, 1, 1, 1])
+        l3 = tf.nn.relu(l3)
+        l3 = tf.image.resize_bilinear(l3, [56, 56])
+        l3 = b3 + l3
+
+        l2 = self._conv("l2", l3, 3, 64, 64, [1, 1, 1, 1])
+        l2 = tf.nn.relu(l2)
+        l2 = tf.image.resize_bilinear(l2, [112, 112])
+        l2 = b2 + l2
+
+        l1 = self._conv("l1", l2, 3, 64, 64, [1, 1, 1, 1])
+        l1 = tf.nn.relu(l1)
+        l1 = tf.image.resize_bilinear(l1, [224, 224])
+        l1 = b1 + l1
+
+        self.pred = self._conv("predrf", l1, 3, 64, 1, [1, 1, 1, 1])
+        #self.pred_base = upscore
+        self.pred_refine = self.pred
+        self.pred = upscore + self.pred
 
         self.up = tf.image.resize_bilinear(self.pred, [self.H, self.W])
         self.sigm = tf.sigmoid(self.up)
+        # m_conv_up_1 = tf.nn.l2_normalize(m_conv_up_1)
 
     def valid_lang(self, words_parse, words_feat):
         # words_parse: [B, 1, T, 4]
@@ -335,9 +359,8 @@ class LSTM_model(object):
 
         # Convolutional LSTM Fuse
         convlstm_cell = ConvLSTMCell([self.vf_h, self.vf_w], self.mlp_dim, [1, 1])
-        with tf.variable_scope("convlstmscope", reuse=tf.AUTO_REUSE):
-            convlstm_outputs, states = tf.nn.dynamic_rnn(convlstm_cell, tf.convert_to_tensor(
-                [[feat_exg3_2[0], feat_exg4_2[0], feat_exg5_2[0]]]), dtype=tf.float32)
+        convlstm_outputs, states = tf.nn.dynamic_rnn(convlstm_cell, tf.convert_to_tensor(
+            [[feat_exg3_2[0], feat_exg4_2[0], feat_exg5_2[0]]]), dtype=tf.float32)
         fused_feat = convlstm_outputs[:, -1]
         print("Build Gated Fusion with ConvLSTM two times.")
 
@@ -411,13 +434,13 @@ class LSTM_model(object):
         gconv_feat = tf.matmul(adj_mat, graph_feat_reshaped)  # [B, nodes_num, nodes_dim]
         gconv_feat = tf.reshape(gconv_feat, [self.batch_size, 1, nodes_num, nodes_dim])
         gconv_feat = tf.contrib.layers.layer_norm(gconv_feat,
-                                                  scope="gconv_feat_ln_{}_{}".format(graph_name, level), reuse=tf.AUTO_REUSE)
+                                                  scope="gconv_feat_ln_{}_{}".format(graph_name, level))
         gconv_feat = graph_feat + gconv_feat
         gconv_feat = tf.nn.relu(gconv_feat)  # [B, 1, nodes_num, nodes_dim]
         gconv_update = self._conv("gconv_update_{}_{}".format(graph_name, level),
                                        gconv_feat, 1, nodes_dim, nodes_dim, [1, 1, 1, 1])
         gconv_update = tf.contrib.layers.layer_norm(gconv_update,
-                                                         scope="gconv_update_ln_{}_{}".format(graph_name, level), reuse=tf.AUTO_REUSE)
+                                                         scope="gconv_update_ln_{}_{}".format(graph_name, level))
         gconv_update = tf.nn.relu(gconv_update)
 
         return gconv_update
@@ -430,7 +453,6 @@ class LSTM_model(object):
         spa_graph_trans2 = self._conv("spa_graph_trans2_{}".format(level), spa_graph, 1, self.v_emb_dim, self.v_emb_dim,
                                      [1, 1, 1, 1])
         spa_graph_trans2 = tf.reshape(spa_graph_trans2, [self.batch_size, self.vf_h * self.vf_w, self.v_emb_dim])
-
         graph_words_affi = tf.matmul(spa_graph_trans2, words_trans, transpose_b=True)
         # Normalization for affinity matrix
         graph_words_affi = tf.divide(graph_words_affi, self.v_emb_dim ** 0.5)
@@ -440,17 +462,6 @@ class LSTM_model(object):
         gw_affi_v = tf.nn.softmax(graph_words_affi, axis=1)
         adj_mat = tf.matmul(gw_affi_w, gw_affi_v, transpose_b=True)
         # adj_mat: [B, HW, HW], sum == 1 on axis 2
-
-        # If a prediction map exists, then update adjecency matrix to learn from it
-        if self.pred_base is not None:
-            pred_arr = tf.reshape(self.pred_base, [self.batch_size, self.vf_h * self.vf_w, 1])
-            pred_mat = tf.keras.backend.repeat_elements(pred_arr, 1600, axis = 2)
-            new_adj_mat = tf.stack([adj_mat, pred_mat], axis=3)
-            #pred_adj_mat = self._conv("pred_adj", new_adj_mat, 1, 2, 1, [1, 1, 1, 1])
-            with tf.variable_scope("pred_adj", reuse=tf.AUTO_REUSE):
-                w = tf.get_variable('DW', [1, 1, 2, 1], initializer=tf.contrib.layers.xavier_initializer_conv2d())
-                pred_adj_mat = tf.nn.conv2d(new_adj_mat, w, strides=[1, 1, 1, 1], padding='SAME')
-                adj_mat = tf.reshape(pred_adj_mat, [1, self.vf_h * self.vf_w, self.vf_h * self.vf_w])
 
         spa_graph_nodes_num = self.vf_h * self.vf_w
         spa_graph = tf.reshape(spa_graph, [self.batch_size, 1, spa_graph_nodes_num, self.v_emb_dim])
@@ -462,14 +473,14 @@ class LSTM_model(object):
         return spa_graph
 
     def _conv(self, name, x, filter_size, in_filters, out_filters, strides):
-        with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+        with tf.variable_scope(name):
             w = tf.get_variable('DW', [filter_size, filter_size, in_filters, out_filters],
                                 initializer=tf.contrib.layers.xavier_initializer_conv2d())
             b = tf.get_variable('biases', out_filters, initializer=tf.constant_initializer(0.))
             return tf.nn.conv2d(x, w, strides, padding='SAME') + b
 
     def _atrous_conv(self, name, x, filter_size, in_filters, out_filters, rate):
-        with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+        with tf.variable_scope(name):
             w = tf.get_variable('DW', [filter_size, filter_size, in_filters, out_filters],
                                 initializer=tf.random_normal_initializer(stddev=0.01))
             b = tf.get_variable('biases', out_filters, initializer=tf.constant_initializer(0.))
@@ -493,11 +504,12 @@ class LSTM_model(object):
         self.cls_loss_c4 = loss.weighed_logistic_loss(self.up_c4, self.target_fine, 1, 1)
         self.cls_loss_c3 = loss.weighed_logistic_loss(self.up_c3, self.target_fine, 1, 1)
         self.cls_loss = loss.weighed_logistic_loss(self.up_base, self.target_fine, 1, 1)
-        self.iou_loss = loss.iou_loss(self.sigm_base, self.target_fine)
-        self.cls_loss_2 = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
-        self.iou_loss_2 = loss.iou_loss(self.sigm, self.target_fine)
-        self.cls_loss_all = 0.3 * self.cls_loss + 0.1 * self.cls_loss_c5 \
-                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.2 * self.cls_loss_2 + 0.2 * self.iou_loss_2
+        self.cls_loss_refine = loss.weighed_logistic_loss(self.up, self.target_fine, 1, 1)
+        self.cls_loss_all = 0.5 * self.cls_loss + 0.1 * self.cls_loss_c5 \
+                            + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.2 * self.cls_loss_refine
+        # self.iou_loss = loss.iou_loss(self.up, self.target_fine)
+        # self.cls_loss_all = 0.4 * self.cls_loss + 0.1 * self.cls_loss_c5 \
+        #                     + 0.1 * self.cls_loss_c4 + 0.1 * self.cls_loss_c3 + 0.3 * self.iou_loss
         self.reg_loss = loss.l2_regularization_loss(reg_var_list, self.weight_decay)
         self.cost = self.cls_loss_all + self.reg_loss
 

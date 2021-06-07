@@ -1,9 +1,9 @@
 #!/bin/bash
 # a file for job output, you can check job progress
-#SBATCH --output=/ubc/cs/research/shield/projects/aditya10/RefSeg/results/unc/9/unc_testB_800.out
+#SBATCH --output=/ubc/cs/research/shield/projects/aditya10/RefSeg/results/unc/17/unc_test_700_val.out
  
 # a file for errors
-#SBATCH --error=/ubc/cs/research/shield/projects/aditya10/RefSeg/results/unc/9/unc_testB_800.out
+#SBATCH --error=/ubc/cs/research/shield/projects/aditya10/RefSeg/results/unc/17/unc_test_700_val.out
  
 # gpus per node
 #SBATCH --gres=gpu:1
@@ -18,4 +18,4 @@
 #SBATCH --partition=edith
 #SBATCH --time=5-10:00:00
 
-python2 -u /ubc/cs/research/shield/projects/aditya10/RefSeg/trainval_model.py -m test2 -d unc -t testB -n CMPC_model_graphmod_3 -i 800000 -c -emb -f /ubc/cs/research/shield/projects/aditya10/RefSeg/ckpts/unc/9
+python2 -u /ubc/cs/research/shield/projects/aditya10/RefSeg/trainval_model.py -m test2 -d unc -t val -n RS1R2 -i 700000 -c -emb -f /ubc/cs/research/shield/projects/aditya10/RefSeg/ckpts/unc/17

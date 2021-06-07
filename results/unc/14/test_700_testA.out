@@ -1,0 +1,76 @@
+Loading trained weights from /ubc/cs/research/shield/projects/aditya10/RefSeg/ckpts/unc/14/unc_iter_700000.tfmodel
+Use pretrained Embeddings.
+Loaded embedding npy at data/Gref_emb.npy
+
+
+##############################
+Mutan_RAGR_p345_glove_gvec_validlang_2stage_4loss, 
+spatial graph = vis_la_sp, then gcn, 
+adj matrix in gcn is obtained by [HW, T] x [T, HW]. 
+words_parse: [entity, attribute, relation, unnecessary]. 
+Multi-modal feature is obtained by mutan fusion without dropout. 
+The valid language feature is obtained by [E, A]. 
+adj_mat * relation. 
+Fuse p345 with gvec_validlang as filters and validlang obtained by [E, A, R]
+Exchange features for two times. 
+4 losses are used to optimize. 
+Glove Embedding is used to initilize embedding layer.
+##############################
+
+
+Build Glove Embedding.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Gated Fusion with ConvLSTM two times.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Mutan Fusion Module.
+Build MutanFusion Module to get multi-modal features.
+Build Lang2Vis Module.
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Global Lang Vec
+Build Gated Fusion with ConvLSTM two times.
+found 5657 batches under /ubc/cs/research/shield/datasets/refer/data/unc/ with prefix "unc_testA"
+0.0Reading hdf5 file...
+data reader: waiting for file input (IO is slow)...
+....1.0....2.0....3.0....4.0....5.0....6.0....7.0....8.0....9.0....10.0Segmentation evaluation (without DenseCRF):
+precision@0.5 = 0.755701
+precision@0.6 = 0.691002
+precision@0.7 = 0.583702
+precision@0.8 = 0.387131
+precision@0.9 = 0.101467
+overall IoU = 0.630757; mean IoU = 0.631322
+
+Segmentation evaluation (with DenseCRF):
+precision@0.5 = 0.749160
+precision@0.6 = 0.687467
+precision@0.7 = 0.583348
+precision@0.8 = 0.409935
+precision@0.9 = 0.129220
+overall IoU = 0.631384; mean IoU = 0.630779
+
+overall base IoU = 0.625248; mean IoU = 0.625913
+
+overall graph IoU = 0.626176; mean IoU = 0.627145
+

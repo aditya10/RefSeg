@@ -12,7 +12,7 @@ import tensorflow as tf
 import skimage
 from skimage import io as sio
 import time
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from get_model import get_segmentation_model
 from pydensecrf import densecrf
 import h5py
@@ -97,7 +97,7 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
         _, cls_loss_val, lr_val, scores_val, label_val, labelfine_val, up_val = sess.run([model.train_step,
                                                                    model.cls_loss,
                                                                    model.learning_rate,
-                                                                   model.pred_base,
+                                                                   model.pred,
                                                                    model.target,
                                                                    model.target_fine,
                                                                    model.up],
@@ -111,7 +111,8 @@ def train(max_iter, snapshot, dataset, setname, mu, lr, bs, tfmodel_folder,
                                                                       model.valid_idx: valid_idx_batch
                                                                   })
         # print("pred: ")
-        # print(np.shape(scores_val))
+        #print(np.shape(imval))
+        #print(np.shape(upscore))
         # print(scores_val)
         cls_loss_avg = decay * cls_loss_avg + (1 - decay) * cls_loss_val
 
@@ -237,13 +238,15 @@ def test(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name
         proc_im_ = proc_im_[:, :, ::-1]
         proc_im_ -= mu
 
-        scores_val, up_val, sigm_val = sess.run([model.pred, model.up, model.sigm],
+        scores_val, up_val, sigm_val, c5, c4, c3 = sess.run([model.pred, model.up, model.sigm, model.visual_feat_c5, model.visual_feat_c4, model.visual_feat_c3],
                                                 feed_dict={
                                                     model.words: np.expand_dims(text, axis=0),
                                                     model.im: np.expand_dims(proc_im_, axis=0),
                                                     model.valid_idx: np.expand_dims(valid_idx, axis=0)
                                                 })
-
+        print(np.shape(c5))
+        print(np.shape(c4))
+        print(np.shape(c3))
         # scores_val = np.squeeze(scores_val)
         # pred_raw = (scores_val >= score_thresh).astype(np.float32)
         up_val_squeezed = np.squeeze(up_val)
@@ -489,9 +492,210 @@ def test2(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_nam
         result_str += 'overall IoU = %f; mean IoU = %f\n' % (cum_I_dcrf / cum_U_dcrf, mean_dcrf_IoU / seg_total)
         print(result_str)
 
-def visualize_seg(im, mask, interim, predicts, sent, IoU, IoU_base):
+
+# -----------
+# TEST 3
+# -----------
+
+def test3(iter, dataset, visualize, setname, dcrf, mu, tfmodel_folder, model_name, pre_emb=False):
+    #np.set_printoptions(threshold=sys.maxsize)
+    data_folder = '/ubc/cs/research/shield/datasets/refer/data/' + dataset + '/'
+    data_prefix = dataset + '_' + setname
+    if visualize:
+        save_dir = './' + dataset + '/visualization/' + str(iter) + '/'
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+    weights = os.path.join(tfmodel_folder, dataset + '_iter_' + str(iter) + '.tfmodel')
+    print("Loading trained weights from {}".format(weights))
+
+    score_thresh = 1e-9
+    eval_seg_iou_list = [.5, .6, .7, .8, .9]
+    cum_I, cum_U = 0, 0
+    cum_I_base, cum_U_base = 0, 0
+    mean_IoU_base, mean_IoU, mean_dcrf_IoU = 0, 0, 0
+    seg_correct = np.zeros(len(eval_seg_iou_list), dtype=np.int32)
+    if dcrf:
+        cum_I_dcrf, cum_U_dcrf = 0, 0
+        seg_correct_dcrf = np.zeros(len(eval_seg_iou_list), dtype=np.int32)
+    seg_total = 0.
+    H, W = 320, 320
+    vocab_size = 8803 if dataset == 'referit' else 12112
+    emb_name = 'referit' if dataset == 'referit' else 'Gref'
+
+    IU_result = list()
+
+    if pre_emb:
+        # use pretrained embbeding
+        print("Use pretrained Embeddings.")
+        model = get_segmentation_model(model_name, H=H, W=W,
+                                       mode='eval', vocab_size=vocab_size, emb_name=emb_name)
+    else:
+        model = get_segmentation_model(model_name, H=H, W=W,
+                                       mode='eval', vocab_size=vocab_size)
+
+    # Load pretrained model
+    snapshot_restorer = tf.train.Saver()
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    sess.run(tf.global_variables_initializer())
+    snapshot_restorer.restore(sess, weights)
+    reader = data_reader.DataReader(data_folder, data_prefix, shuffle=False)
+
+    NN = reader.num_batch
+    vcount = 0
+    for n_iter in range(reader.num_batch):
+
+        if n_iter % (NN // 50) == 0:
+            if n_iter / (NN // 50) % 5 == 0:
+                sys.stdout.write(str(n_iter / (NN // 50) // 5))
+            else:
+                sys.stdout.write('.')
+            sys.stdout.flush()
+
+        batch = reader.read_batch(is_log=False)
+        text = batch['text_batch']
+        im = batch['im_batch']
+        mask = batch['mask_batch'].astype(np.float32)
+        valid_idx = np.zeros([1], dtype=np.int32)
+        for idx in range(text.shape[0]):
+            if text[idx] != 0:
+                valid_idx[0] = idx
+                break
+
+        proc_im = skimage.img_as_ubyte(im_processing.resize_and_pad(im, H, W))
+        proc_im_ = proc_im.astype(np.float32)
+        proc_im_ = proc_im_[:, :, ::-1]
+        proc_im_ -= mu
+
+        # scores_val, up_val, sigm_val, score2, sbefore, smid, safter, pred_base, words, adjb, adjf, up_base = sess.run([model.pred, model.up, model.sigm, model.pred_refine, model.spagraphbefore, model.spagraphmid, model.spagraphafter, model.pred_base, model.wordsinfo, model.adjmatbefore, model.adjmatafter, model.up_base],
+        #                                         feed_dict={
+        #                                             model.words: np.expand_dims(text, axis=0),
+        #                                             model.im: np.expand_dims(proc_im_, axis=0),
+        #                                             model.valid_idx: np.expand_dims(valid_idx, axis=0)
+        #                                         })
+        scores_val, up_val, sigm_val, sbefore, smid, safter, pred_base, up_base, adjb, adjf = sess.run([model.pred, model.up, model.sigm, model.spagraphbefore, model.spagraphmid, model.spagraphafter, model.pred_base, model.up_base, model.adjmatbefore, model.adjmatafter],
+                                                feed_dict={
+                                                    model.words: np.expand_dims(text, axis=0),
+                                                    model.im: np.expand_dims(proc_im_, axis=0),
+                                                    model.valid_idx: np.expand_dims(valid_idx, axis=0)
+                                                })
+        # scores_val, up_val, sigm_val, score2, pred_base, up_base = sess.run([model.pred, model.up, model.sigm, model.pred_refine, model.pred_base, model.up_base],
+        #                                         feed_dict={
+        #                                             model.words: np.expand_dims(text, axis=0),
+        #                                             model.im: np.expand_dims(proc_im_, axis=0),
+        #                                             model.valid_idx: np.expand_dims(valid_idx, axis=0)
+        #                                         })
+        
+        # print(np.shape(safter))
+        # print(sbefore)
+        # sbefore = sbefore[0].sum(axis=2)
+        # smid = smid[0].sum(axis=2)
+        # safter = safter[0].sum(axis=2)
+        # adjb = adjb[0]
+        # adjf = adjf[0]
+        # # sbefore = sbefore[0]
+        # # safter = safter[0]
+        # pred_base = pred_base[0].sum(axis=2)
+        # score2 = score2[0].sum(axis=2)
+        # print(np.max(pred_base))
+        # print(np.min(pred_base))
+        # print(np.max(score2))
+        # print(np.min(score2))
+
+        # scores_val = np.squeeze(scores_val)
+        # pred_raw = (scores_val >= score_thresh).astype(np.float32)
+        up_val_squeezed = np.squeeze(up_val)
+        pred_raw = (up_val_squeezed >= score_thresh).astype(np.float32)
+        predicts = im_processing.resize_and_crop(pred_raw, mask.shape[0], mask.shape[1])
+
+        up_base_squeezed = np.squeeze(up_base)
+        pred_base_raw = (up_base_squeezed >= score_thresh).astype(np.float32)
+        predicts_base = im_processing.resize_and_crop(pred_base_raw, mask.shape[0], mask.shape[1])
+
+        if dcrf:
+            # Dense CRF post-processing
+            sigm_val = np.squeeze(sigm_val)
+            d = densecrf.DenseCRF2D(W, H, 2)
+            U = np.expand_dims(-np.log(sigm_val), axis=0)
+            U_ = np.expand_dims(-np.log(1 - sigm_val), axis=0)
+            unary = np.concatenate((U_, U), axis=0)
+            unary = unary.reshape((2, -1))
+            d.setUnaryEnergy(unary)
+            d.addPairwiseGaussian(sxy=3, compat=3)
+            d.addPairwiseBilateral(sxy=20, srgb=3, rgbim=proc_im, compat=10)
+            Q = d.inference(5)
+            pred_raw_dcrf = np.argmax(Q, axis=0).reshape((H, W)).astype(np.float32)
+            predicts_dcrf = im_processing.resize_and_crop(pred_raw_dcrf, mask.shape[0], mask.shape[1])
+
+
+        I, U = eval_tools.compute_mask_IU(predicts, mask)
+        I_base, U_base = eval_tools.compute_mask_IU(predicts_base, mask)
+
+        #visualize if the IoU is smaller than this, i.e. the images where the segmentation results are worse
+        IoU_VisThresh = 0.9
+        this_IoU = float(I)/U
+        base_IoU = float(I_base)/U_base
+        if visualize & (this_IoU<=IoU_VisThresh):
+            sent = batch['sent_batch'][()]
+            #hmaps = [(sbefore, "1-graphbefore"), (smid, "3-graphmid"), (safter, "6-graphafter"), (pred_base, "4-pred1"), (score2, "7-pred2"), (adjb, "2-adj1"), (adjf, "5-adj2")]
+            #hmaps = [(pred_base, "4-pred1"), (score2, "7-pred2")]
+            hmaps = []
+            if dcrf:
+                visualize_seg(im, mask, predicts_dcrf, sent, this_IoU, IoU_base=base_IoU, hmaps=hmaps)
+            else:
+                visualize_seg(im, mask, predicts, sent, this_IoU, IoU_base=base_IoU, hmaps=hmaps)
+        # visualize_seg(im, mask, predicts, sent, IoU, interim=None, IoU_base=None, hmap1=None, hmap2=None):
+
+        IU_result.append({'batch_no': n_iter, 'I': I, 'U': U})
+        mean_IoU += float(I) / U
+        cum_I += I
+        cum_U += U
+
+        mean_IoU_base += float(I_base) / U_base
+        cum_I_base += I_base
+        cum_U_base += U_base
+
+        msg = 'cumulative IoU = %f' % (cum_I / cum_U)
+        for n_eval_iou in range(len(eval_seg_iou_list)):
+            eval_seg_iou = eval_seg_iou_list[n_eval_iou]
+            seg_correct[n_eval_iou] += (I / U >= eval_seg_iou)
+        if dcrf:
+            I_dcrf, U_dcrf = eval_tools.compute_mask_IU(predicts_dcrf, mask)
+            mean_dcrf_IoU += float(I_dcrf) / U_dcrf
+            cum_I_dcrf += I_dcrf
+            cum_U_dcrf += U_dcrf
+            msg += '\tcumulative IoU (dcrf) = %f' % (cum_I_dcrf / cum_U_dcrf)
+            for n_eval_iou in range(len(eval_seg_iou_list)):
+                eval_seg_iou = eval_seg_iou_list[n_eval_iou]
+                seg_correct_dcrf[n_eval_iou] += (I_dcrf / U_dcrf >= eval_seg_iou)
+        # print(msg)
+        seg_total += 1
+
+    # Print results
+    print('Segmentation evaluation (without DenseCRF):')
+    result_str = ''
+    for n_eval_iou in range(len(eval_seg_iou_list)):
+        result_str += 'precision@%s = %f\n' % \
+                      (str(eval_seg_iou_list[n_eval_iou]), seg_correct[n_eval_iou] / seg_total)
+    result_str += 'overall IoU = %f; mean IoU = %f\n' % (cum_I / cum_U, mean_IoU / seg_total)
+    print(result_str)
+    if dcrf:
+        print('Segmentation evaluation (with DenseCRF):')
+        result_str = ''
+        for n_eval_iou in range(len(eval_seg_iou_list)):
+            result_str += 'precision@%s = %f\n' % \
+                          (str(eval_seg_iou_list[n_eval_iou]), seg_correct_dcrf[n_eval_iou] / seg_total)
+        result_str += 'overall IoU = %f; mean IoU = %f\n' % (cum_I_dcrf / cum_U_dcrf, mean_dcrf_IoU / seg_total)
+        print(result_str)
+
+    print('overall base IoU = %f; mean IoU = %f\n' % (cum_I_base / cum_U_base, mean_IoU_base / seg_total))
+
+
+def visualize_seg(im, mask, predicts, sent, IoU, interim=None, IoU_base=None, hmaps=None):
     # Saves visualizations as image files
-    vis_dir = "./visualize/Gref/test7"
+    vis_dir = "./visualize/unc/test_6b"
+    mask_alpha = 0.4
     IoU_str = str("%.3f" % round(IoU,3))[2:]
     IoU_sent = IoU_str[0]+"/"+IoU_str+ " - "+sent
     sent_dir = os.path.join(vis_dir, IoU_sent)
@@ -505,8 +709,9 @@ def visualize_seg(im, mask, interim, predicts, sent, IoU, IoU_base):
     # write IoU score to the text file
     f = open(os.path.join(sent_dir, 'result.txt'), 'w')
     f.write(str(IoU)+" \n")
-    f.write(str(IoU_base)+" \n")
-    f.write("BETTER?   "+str(IoU_base<IoU))
+    if IoU_base is not None:
+        f.write(str(IoU_base)+" \n")
+        f.write("BETTER?   "+str(IoU_base<IoU)+" \n")
     f.close()
 
     # save original image
@@ -519,16 +724,19 @@ def visualize_seg(im, mask, interim, predicts, sent, IoU, IoU_base):
     im_gt = im_gt.astype('int16')
     im_gt[:, :, 2] += mask.astype('int16') * (-170)
     im_gt = im_gt.astype('uint8')
+    im_gt = np.ubyte(((1-mask_alpha)*im)+(mask_alpha*im_gt))
     sio.imsave(os.path.join(sent_dir, "gt.png"), im_gt)
     
     # save base mask
-    im_interim = np.zeros_like(im)
-    im_interim[:, :, 2] = 170
-    im_interim[:, :, 0] += interim.astype('uint8') * 170
-    im_interim = im_interim.astype('int16')
-    im_interim[:, :, 2] += interim.astype('int16') * (-170)
-    im_interim = im_interim.astype('uint8')
-    sio.imsave(os.path.join(sent_dir, "base_mask.png"), im_interim)
+    if interim is not None:
+        im_interim = np.zeros_like(im)
+        im_interim[:, :, 2] = 170
+        im_interim[:, :, 0] += interim.astype('uint8') * 170
+        im_interim = im_interim.astype('int16')
+        im_interim[:, :, 2] += interim.astype('int16') * (-170)
+        im_interim = im_interim.astype('uint8')
+        im_interim = np.ubyte(((1-mask_alpha)*im)+(mask_alpha*im_interim))
+        sio.imsave(os.path.join(sent_dir, "base_mask.png"), im_interim)
 
     # save predicted mask
     im_pred = np.zeros_like(im)
@@ -537,7 +745,13 @@ def visualize_seg(im, mask, interim, predicts, sent, IoU, IoU_base):
     im_pred = im_pred.astype('int16')
     im_pred[:, :, 2] += predicts.astype('int16') * (-170)
     im_pred = im_pred.astype('uint8')
+    im_pred = np.ubyte(((1-mask_alpha)*im)+(mask_alpha*im_pred))
     sio.imsave(os.path.join(sent_dir, "mask.png"), im_pred)
+
+    # Save heatmap for scene graph
+    if hmaps is not None:
+        for hmap in hmaps:
+            plt.imsave(os.path.join(sent_dir, str(hmap[1])+".png"), hmap[0], cmap='hot')
 
 
 if __name__ == "__main__":
@@ -588,6 +802,16 @@ if __name__ == "__main__":
              pre_emb=args.emb)
     elif args.m == 'test2':
         test2(iter=args.i,
+             dataset=args.d,
+             visualize=args.v,
+             setname=args.t,
+             dcrf=args.c,
+             mu=mu,
+             tfmodel_folder=args.f,
+             model_name=args.n,
+             pre_emb=args.emb)
+    elif args.m == 'test3':
+        test3(iter=args.i,
              dataset=args.d,
              visualize=args.v,
              setname=args.t,
